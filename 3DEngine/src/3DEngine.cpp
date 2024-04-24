@@ -31,6 +31,73 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+#include <filesystem>
+std::vector<Shader> LoadShaders(const std::string& filePath)
+{
+    std::vector<Shader> shaders;
+    bool isLoaded = false;
+
+    if (std::filesystem::exists(filePath))
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(filePath))
+        {
+            std::cout << "Trying to load shader at: " << entry.path() << std::endl;
+            Shader shader;
+            isLoaded = shader.LoadShaderFile(entry.path().generic_string());
+            if (isLoaded)
+                shaders.push_back(shader);
+        }
+    }
+
+    std::cout << shaders.size() << " shaders loaded" << std::endl;
+    return shaders;
+}
+
+std::vector<Mesh> LoadMeshes(const std::string& filePath)
+{
+    std::vector<Mesh> meshes;
+    bool isLoaded = false;
+
+    if (std::filesystem::exists(filePath))
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(filePath))
+        {
+            std::cout << "Trying to load mesh at: " << entry.path() << std::endl;
+            Mesh mesh;
+            isLoaded = mesh.LoadMeshFile(entry.path().generic_string());
+            if (isLoaded)
+                meshes.push_back(mesh);
+        }
+    }
+
+    std::cout << meshes.size() << " meshes loaded" << std::endl;
+    return meshes;
+}
+
+void CreateGameObjects(std::vector<GameObject>* gameObjects, std::vector<Shader>* shaders, std::vector<Mesh>* meshes)
+{
+    gameObjects->resize(shaders->size() * meshes->size());
+
+    float xSpacing = 3.0f;
+    float ySpacing = 3.0f;
+
+    int i = 0;
+    for (int shaderIndex = 0; shaderIndex < shaders->size(); shaderIndex++)
+    {
+        for (int meshIndex = 0; meshIndex < meshes->size(); meshIndex++)
+        {
+            gameObjects->at(i).AddModel();
+            gameObjects->at(i).GetModel()->SetMesh(&meshes->at(meshIndex));
+            gameObjects->at(i).GetModel()->SetShader(&shaders->at(shaderIndex));
+            gameObjects->at(i).Transform()->SetPosition(meshIndex * xSpacing, shaderIndex * ySpacing, 0.0f);
+            i++;
+        }
+    }
+
+    std::cout << gameObjects->size() << " GameObjects created" << std::endl;
+}
+
+
 int main(void)
 {
     GLFWwindow* window;
@@ -83,58 +150,13 @@ int main(void)
     }
 
     Camera camera(window);
-    camera.Transform()->SetPosition(0.0f, 0.0f, 0.0f);
+    camera.Transform()->SetPosition(0.0f, 0.0f, 5.0f);
 
-    Mesh cubeMesh;
-    cubeMesh.LoadMeshFile("res/Meshes/cube.obj");
-    
-    Mesh monkeyMesh;
-    monkeyMesh.LoadMeshFile("res/Meshes/monkey.obj");
+    std::vector<Shader> shaders = LoadShaders("res/Shaders/");
+    std::vector<Mesh> meshes = LoadMeshes("res/Meshes/");
+    std::vector<GameObject> gameObjects;
+    CreateGameObjects(&gameObjects, &shaders, &meshes);
 
-    Mesh smoothMonkeyMesh;
-    smoothMonkeyMesh.LoadMeshFile("res/meshes/smoothmonkey.obj");
-
-    Shader rgbShader;
-    rgbShader.LoadShaderFile("res/shaders/rgb.shader");
-
-    Shader basicLightingShader;
-    basicLightingShader.LoadShaderFile("res/shaders/basiclighting.shader");
-    
-    GameObject cubeGO;
-    cubeGO.AddModel();
-    cubeGO.GetModel()->SetMesh(&cubeMesh);
-    cubeGO.GetModel()->SetShader(&rgbShader);
-    cubeGO.Transform()->SetPosition(0.0f, 0.0f, -5.0f);
-
-    GameObject rgbMonkeyGO;
-    rgbMonkeyGO.AddModel();
-    rgbMonkeyGO.GetModel()->SetMesh(&monkeyMesh);
-    rgbMonkeyGO.GetModel()->SetShader(&rgbShader);
-    rgbMonkeyGO.Transform()->SetPosition(3.0f, 0, -5.0f);
-
-    GameObject go2;
-    go2.AddModel();
-    go2.GetModel()->SetMesh(&smoothMonkeyMesh);
-    go2.GetModel()->SetShader(&rgbShader);
-    go2.Transform()->SetPosition(6.0f, 0, -5.0f);
-
-    GameObject go1;
-    go1.AddModel();
-    go1.GetModel()->SetMesh(&cubeMesh);
-    go1.GetModel()->SetShader(&basicLightingShader);
-    go1.Transform()->SetPosition(0.0f, 3.0f, -5.0f);
-
-    GameObject monkeyGO;
-    monkeyGO.AddModel();
-    monkeyGO.GetModel()->SetMesh(&monkeyMesh);
-    monkeyGO.GetModel()->SetShader(&basicLightingShader);
-    monkeyGO.Transform()->SetPosition(3.0f, 3.0f, -5.0f);
-
-    GameObject smoothMonkeyGO;
-    smoothMonkeyGO.AddModel();
-    smoothMonkeyGO.GetModel()->SetMesh(&smoothMonkeyMesh);
-    smoothMonkeyGO.GetModel()->SetShader(&basicLightingShader);
-    smoothMonkeyGO.Transform()->SetPosition(6.0f, 3.0f, -5.0f);
 
     double prevFrameTime = glfwGetTime();
     double deltaTime = 0;
@@ -160,13 +182,11 @@ int main(void)
             camera.Transform()->SetPosition(cPos.x, cPos.y - speed, cPos.z);
 
         camera.CameraDraw(window);
-        go1.GetModel()->Draw(&camera);
-        go2.GetModel()->Draw(&camera);
-        cubeGO.GetModel()->Draw(&camera);
-        rgbMonkeyGO.GetModel()->Draw(&camera);
-        monkeyGO.GetModel()->Draw(&camera);
-        smoothMonkeyGO.GetModel()->Draw(&camera);
-
+        for (int i = 0; i < gameObjects.size(); i++)
+        {
+            gameObjects[i].GetModel()->Draw(&camera);
+        }
+       
         keyPressed = 'n';
         glfwSwapBuffers(window);
         glfwPollEvents();

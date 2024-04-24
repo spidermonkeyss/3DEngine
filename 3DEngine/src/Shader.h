@@ -14,6 +14,6 @@ public:
 
 	void Bind();
 
-	void LoadShaderFile(const std::string& filePath);
+	bool LoadShaderFile(const std::string& filePath);
 	void SetMVP(const float* mvp);
 };

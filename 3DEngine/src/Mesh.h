@@ -23,6 +23,6 @@ public:
 	
 	void Bind();
 
-	void LoadMeshFile(const std::string& filePath);
+	bool LoadMeshFile(const std::string& filePath);
 
 };

@@ -61,7 +61,7 @@ void Mesh::LoadGlIndexBuffer(const void* indexData, int count, unsigned int type
     GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), indexData, GL_STATIC_DRAW));
 }
 
-void Mesh::LoadMeshFile(const std::string& filePath)
+bool Mesh::LoadMeshFile(const std::string& filePath)
 {
     std::string extensionTypeStr = FileLoader::GetFileExtension(filePath);
     
@@ -77,6 +77,7 @@ void Mesh::LoadMeshFile(const std::string& filePath)
         {
             vertexTypeSize = 4;
             LoadGlVertexArray(*vertexData, &attributeInfo);
+            return true;
         }
         else
         {
@@ -88,4 +89,5 @@ void Mesh::LoadMeshFile(const std::string& filePath)
     {
         std::cout << "File extension not supported\n";
     }
+    return false;
 }

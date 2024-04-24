@@ -32,7 +32,7 @@ void Shader::LoadGlShader(const std::string& vertexShader, const std::string& fr
     mvp_location = glGetUniformLocation(gl_ShaderId, "MVP");
 }
 
-void Shader::LoadShaderFile(const std::string& filePath)
+bool Shader::LoadShaderFile(const std::string& filePath)
 {
     std::string extensionTypeStr = FileLoader::GetFileExtension(filePath);
 
@@ -43,12 +43,14 @@ void Shader::LoadShaderFile(const std::string& filePath)
         if (shaderStrings.size() != 0)
         {
             LoadGlShader(shaderStrings[0], shaderStrings[1]);
+            return true;
         }
     }
     else
     {
         std::cout << "File extension not supported\n";
     }
+    return false;
 }
 
 void Shader::SetMVP(const float* mvp)
