@@ -3,6 +3,9 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "EngineTime.h"
+#include "Physics.h"
+#include "Component/BoxCollider.h"
 
 #include <filesystem>
 std::vector<Shader> LoadShaders(const std::string& filePath)
@@ -59,11 +62,25 @@ void CreateGameObjects(std::vector<GameObject>* gameObjects, std::vector<Shader>
     {
         for (int meshIndex = 0; meshIndex < meshes->size(); meshIndex++)
         {
-            gameObjects->at(i).AddComponent<Transform>();
-            gameObjects->at(i).GetComponentUnsafe<Transform>()->SetPosition(meshIndex * xSpacing, shaderIndex * ySpacing, 0.0f);
-            gameObjects->at(i).AddComponent<Model>();
-            gameObjects->at(i).GetComponentUnsafe<Model>()->SetMesh(&meshes->at(meshIndex));
-            gameObjects->at(i).GetComponentUnsafe<Model>()->SetShader(&shaders->at(shaderIndex));
+            GameObject* gameObject = &gameObjects->at(i);
+            gameObject->GetComponentUnsafe<Transform>()->SetPosition(meshIndex * xSpacing, shaderIndex * ySpacing, 0.0f);
+            gameObject->AddComponent<Model>();
+            gameObject->GetComponentUnsafe<Model>()->SetMesh(&meshes->at(meshIndex));
+            gameObject->GetComponentUnsafe<Model>()->SetShader(&shaders->at(shaderIndex));
+
+            if (i > 2)
+            {
+                gameObject->AddComponent<Rigidbody>();
+            }
+
+            if (i == 0 || i == 3)
+            {
+                gameObject->AddComponent<BoxCollider>();
+                gameObject->GetComponent<BoxCollider>()->lengths.x = 1.0f;
+                gameObject->GetComponent<BoxCollider>()->lengths.y = 1.0f;
+                gameObject->GetComponent<BoxCollider>()->lengths.z = 1.0f;
+            }
+
             i++;
         }
     }
@@ -77,24 +94,29 @@ int main(void)
     renderer.Init();
 
     Camera camera;
-    camera.Transform()->SetPosition(0.0f, 0.0f, 5.0f);
+    camera.Transform()->SetPosition(0.0f, 0.0f, 8.0f);
 
     renderer.SetCamera(&camera);
 
     std::vector<Shader> shaders = LoadShaders("res/Shaders/");
     std::vector<Mesh> meshes = LoadMeshes("res/Meshes/");
-
     std::vector<GameObject> gameObjects;
+
     CreateGameObjects(&gameObjects, &shaders, &meshes);
 
+    double currentFrameTime = 0;
     double prevFrameTime = glfwGetTime();
-    double deltaTime = 0;
+    EngineTime::deltaTime = 0;
     while (!renderer.shouldWindowClose)
     {
-        deltaTime = glfwGetTime() - prevFrameTime;
+        currentFrameTime = glfwGetTime();
+        EngineTime::deltaTime = currentFrameTime - prevFrameTime;
+        prevFrameTime = currentFrameTime;
+
+        Physics::Update();
 
         float speed = 0.5f;
-        Vector3 cPos = camera.Transform()->Position();
+        Vector3 cPos = camera.Transform()->position;
 
         if (Renderer::keyPressed == 'w')
             camera.Transform()->SetPosition(cPos.x, cPos.y, cPos.z - speed);

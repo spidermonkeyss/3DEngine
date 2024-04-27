@@ -1,11 +1,9 @@
 #pragma once
 #include "Mesh.h"
 #include "Shader.h"
+#include "Component.h"
 
-class Camera;
-class GameObject;
-
-class Model
+class Model : public Component
 {
 private:
 	Mesh* mesh;

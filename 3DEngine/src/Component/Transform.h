@@ -1,15 +1,14 @@
 #pragma once
 #include "Vector3.h"
+#include "Component.h"
 
-class Transform
+class Transform : public Component
 {
-private:
-	Vector3 position;
 public:
-	Transform();
+	Vector3 position;
 
+	Transform();
+	
 	void SetPosition(float x, float y, float z);
 	void SetPosition(Vector3 position);
-
-	inline Vector3 Position() { return position; }
 };

@@ -39,8 +39,10 @@ Renderer::Renderer()
 
 void Renderer::DrawModel(unsigned int objectId)
 {
-    Model* model = &ComponentHandler::modelComponents[objectId];
+    Model* model = ComponentHandler::GetComponentUnsafe<Model>(objectId);
 
+    if (!model->isEnabled)
+        return;
     if (model->GetMesh() == nullptr || model->GetShader() == nullptr)
         return;
     if (model->GetMesh()->vertexTypeSize == 0)
@@ -49,9 +51,9 @@ void Renderer::DrawModel(unsigned int objectId)
     model->GetMesh()->Bind();
     model->GetShader()->Bind();
 
-    Transform* transform = &ComponentHandler::tranformComponents[objectId];
+    Transform* transform = ComponentHandler::GetComponentUnsafe<Transform>(objectId);
 
-    glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(transform->Position().x, transform->Position().y, transform->Position().z));
+    glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(transform->position.x, transform->position.y, transform->position.z));
 
     glm::mat4 mvp = projectionMatrix * viewMatrix * transformMatrix;
     model->GetShader()->SetMVP(&mvp[0][0]);
@@ -134,12 +136,12 @@ void Renderer::Render()
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         projectionMatrix = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 150.0f);
-        viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(camera->Transform()->Position().x, camera->Transform()->Position().y, camera->Transform()->Position().z));
+        viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(camera->Transform()->position.x, camera->Transform()->position.y, camera->Transform()->position.z));
         viewMatrix = glm::inverse(viewMatrix);
 
-        std::map<unsigned int, Model>::iterator iter;
-        for (iter = ComponentHandler::modelComponents.begin(); iter != ComponentHandler::modelComponents.end(); ++iter)
-            DrawModel(iter->first);
+        std::map<unsigned int, Model>::iterator i;
+        for (i = ComponentHandler::GetModelComponents()->begin(); i != ComponentHandler::GetModelComponents()->end(); ++i)
+            DrawModel(i->first);
     }
 
     glfwSwapBuffers(window);
