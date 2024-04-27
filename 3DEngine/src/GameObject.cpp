@@ -1,26 +1,17 @@
 #include "GameObject.h"
-#include "Model.h"
+#include "Component/Model.h"
 #include <iostream>
 
+unsigned int GameObject::nextObjectId = 0;
+
 GameObject::GameObject()
-	:transform(), model(nullptr)
 {
 	std::cout << "GameObject created.\n";
+	objectId = nextObjectId;
+	nextObjectId++;
 }
 
 GameObject::~GameObject()
 {
-	RemoveModel();
 	std::cout << "GameObject deleted.\n";
-}
-
-void GameObject::AddModel()
-{
-	model = new Model(this);
-}
-
-void GameObject::RemoveModel()
-{
-	if (model != nullptr)
-		delete model;
 }

@@ -1,0 +1,10 @@
+#Ignore files build by Visual Studio
+bin/
+obj/
+target/
+.vs/
+Debug/
+*.user
+*.sln
+*.filters
+*.vcxproj
