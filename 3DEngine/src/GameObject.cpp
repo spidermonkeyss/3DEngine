@@ -1,5 +1,5 @@
 #include "GameObject.h"
-#include "Component/Transform.h"
+#include "Transform.h"
 #include "Component/Model.h"
 #include "Component/Rigidbody.h"
 
@@ -10,25 +10,36 @@ unsigned int GameObject::nextObjectId = 0;
 GameObject::GameObject()
 {
 	std::cout << "GameObject created.\n";
-	objectId = nextObjectId;
-	gameObjects[objectId] = this;
-	AddComponent<Transform>();
-	nextObjectId++;
 }
 
 GameObject::~GameObject()
 {
+	std::cout << "GameObject destroyed.\n";
+}
+
+GameObject* GameObject::CreateGameObject()
+{
+	unsigned int objectId = nextObjectId;
+	nextObjectId++;
+	std::unique_ptr<GameObject> wee(new GameObject());
+	gameObjects[objectId] = std::move(wee);
+	gameObjects[objectId]->objectId = objectId;
+	return gameObjects[objectId].get();
+}
+
+void GameObject::DestroyGameObject(GameObject* gameObject)
+{
 	std::cout << "GameObject deleted.\n";
-	RemoveComponent<Transform>();
-	RemoveComponent<Model>();
-	RemoveComponent<Rigidbody>();
-	RemoveComponent<BoxCollider>();
-	gameObjects.erase(objectId);
+	gameObject->RemoveComponent<Model>();
+	gameObject->RemoveComponent<Rigidbody>();
+	gameObject->RemoveComponent<BoxCollider>();
+	gameObjects.erase(gameObject->ID());
 }
 
 GameObject* GameObject::GetGameObjectByObjectId(unsigned int objectId)
 {
 	if (gameObjects.count(objectId) == 1)
-		return gameObjects[objectId];
+		return gameObjects[objectId].get();
 	return nullptr;
+
 }

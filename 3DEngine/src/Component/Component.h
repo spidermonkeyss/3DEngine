@@ -5,10 +5,9 @@ class GameObject;
 class Component
 {
 private:
-	unsigned int componentGameObjectId;
 public:
+	unsigned int componentGameObjectId;
 	bool isEnabled = true;
 
 	GameObject* GameObject();
-	unsigned int GetComponentGameObjectId() { return componentGameObjectId; }
 };

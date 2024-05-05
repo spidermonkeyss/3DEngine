@@ -1,7 +1,6 @@
 #pragma once
 #include "GLCall.h"
 #include "Camera.h"
-#include "Component/Model.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

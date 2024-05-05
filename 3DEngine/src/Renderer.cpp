@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Component/ComponentHandler.h"
+#include "GameObject.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -51,7 +52,7 @@ void Renderer::DrawModel(unsigned int objectId)
     model->GetMesh()->Bind();
     model->GetShader()->Bind();
 
-    Transform* transform = ComponentHandler::GetComponentUnsafe<Transform>(objectId);
+    Transform* transform = model->GameObject()->transform();
 
     glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(transform->position.x, transform->position.y, transform->position.z));
 

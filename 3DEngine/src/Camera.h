@@ -1,5 +1,5 @@
 #pragma once
-#include "Component/Transform.h"
+#include "Transform.h"
 
 class Camera
 {
