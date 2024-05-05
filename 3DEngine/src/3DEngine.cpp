@@ -90,9 +90,9 @@ void CreateGameObjects(std::vector<Shader>* shaders, std::vector<Mesh>* meshes)
     model->SetShader(&shaders->at(1));
     gameObject->AddComponent<Rigidbody>();
     BoxCollider* bc = gameObject->AddComponent<BoxCollider>();
-    bc->lengths.x = 3.0f;
-    bc->lengths.y = 3.0f;
-    bc->lengths.z = 3.0f;
+    bc->lengths.x = 2.0f;
+    bc->lengths.y = 2.0f;
+    bc->lengths.z = 2.0f;
 
     GameObject* gameObject2 = GameObject::CreateGameObject();
     gameObject2->transform()->SetPosition(-6.0f, 2.5f, 0.0f);
