@@ -1,7 +1,8 @@
 #include "GameObject.h"
 #include "Transform.h"
-#include "Component/Model.h"
-#include "Component/Rigidbody.h"
+//#include "Component/Model.h"
+//#include "Component/Rigidbody.h"
+#include "Scene.h"
 
 #include <iostream>
 
@@ -22,9 +23,9 @@ GameObject* GameObject::CreateGameObject()
 	unsigned int objectId = nextObjectId;
 	nextObjectId++;
 	std::unique_ptr<GameObject> wee(new GameObject());
-	gameObjects[objectId] = std::move(wee);
-	gameObjects[objectId]->objectId = objectId;
-	return gameObjects[objectId].get();
+	Scene::currentScene->gameObjects[objectId] = std::move(wee);
+	Scene::currentScene->gameObjects[objectId]->objectId = objectId;
+	return Scene::currentScene->gameObjects[objectId].get();
 }
 
 void GameObject::DestroyGameObject(GameObject* gameObject)
@@ -33,13 +34,13 @@ void GameObject::DestroyGameObject(GameObject* gameObject)
 	gameObject->RemoveComponent<Model>();
 	gameObject->RemoveComponent<Rigidbody>();
 	gameObject->RemoveComponent<BoxCollider>();
-	gameObjects.erase(gameObject->ID());
+	Scene::currentScene->gameObjects.erase(gameObject->objectId);
 }
 
 GameObject* GameObject::GetGameObjectByObjectId(unsigned int objectId)
 {
-	if (gameObjects.count(objectId) == 1)
-		return gameObjects[objectId].get();
+	if (Scene::currentScene->gameObjects.count(objectId) == 1)
+		return Scene::currentScene->gameObjects[objectId].get();
 	return nullptr;
 
 }

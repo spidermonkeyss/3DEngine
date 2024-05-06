@@ -29,7 +29,7 @@ void Shader::LoadGlShader(const std::string& vertexShader, const std::string& fr
     GLCall(glDeleteShader(vertex_shader_id));
     GLCall(glDeleteShader(fragment_shader_id));
 
-    mvp_location = glGetUniformLocation(gl_ShaderId, "MVP");
+    //mvp_location = glGetUniformLocation(gl_ShaderId, "MVP");
 }
 
 bool Shader::LoadShaderFile(const std::string& filePath)
@@ -53,9 +53,26 @@ bool Shader::LoadShaderFile(const std::string& filePath)
     return false;
 }
 
-void Shader::SetMVP(const float* mvp)
+void Shader::SetMVP(const std::string& mvpUniformName, const float* mvp)
 {
-    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);
+    glUniformMatrix4fv(GetUniformLocation(mvpUniformName), 1, GL_FALSE, mvp);
+}
+
+bool Shader::SetTexture(const std::string& name, int slot, Texture* texture)
+{
+    texture->Bind(slot);
+    Bind();
+    int result = GetUniformLocation(name);
+    if (result == -1)
+        return false;
+
+    GLCall(glUniform1i(result, slot));
+    return true;
+}
+
+void Shader::SetUniform1i(const std::string& name, int value)
+{
+    GLCall(glUniform1i(GetUniformLocation(name), value));
 }
 
 Shader::~Shader()
@@ -66,4 +83,16 @@ Shader::~Shader()
 void Shader::Bind()
 {
     GLCall(glUseProgram(gl_ShaderId));
+}
+
+int Shader::GetUniformLocation(const std::string& name)
+{
+    if (uniformLocationCache.find(name) != uniformLocationCache.end())
+        return uniformLocationCache[name];
+
+    GLCall(int location = glGetUniformLocation(gl_ShaderId, name.c_str()));
+    if (location == -1)
+        std::cout << "Warning: uniform " << name << " doesn't exist!" << std::endl;
+    uniformLocationCache[name] = location;
+    return location;
 }

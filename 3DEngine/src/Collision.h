@@ -1,13 +1,17 @@
 #pragma once
-//#include "Component/BoxCollider.h"
-#include "Vector3.h"
+#include "Math/Vector3.h"
 
 class BoxCollider;
 
 class Collision
 {
-public:
+private:
 	BoxCollider* otherCollider;
 	Vector3 collisionForceDirection;
 	float penDepth;
+public:
+	inline BoxCollider* OtherCollider() { return otherCollider; }
+
+private:
+	friend class Physics;
 };

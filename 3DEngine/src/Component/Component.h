@@ -5,9 +5,12 @@ class GameObject;
 class Component
 {
 private:
-public:
 	unsigned int componentGameObjectId;
+public:
 	bool isEnabled = true;
 
 	GameObject* GameObject();
+private:
+	friend class ComponentHandler;
+	friend class Physics;
 };

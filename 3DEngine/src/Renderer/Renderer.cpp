@@ -1,8 +1,7 @@
 #include "Renderer.h"
 #include "Component/ComponentHandler.h"
 #include "GameObject.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "Scene.h"
 
 char Renderer::keyPressed = 'n';
 
@@ -40,32 +39,32 @@ Renderer::Renderer()
 
 void Renderer::DrawModel(unsigned int objectId)
 {
-    Model* model = ComponentHandler::GetComponentUnsafe<Model>(objectId);
+    Model* model = Scene::currentScene->componentHandler.GetComponentUnsafe<Model>(objectId);
 
     if (!model->isEnabled)
         return;
-    if (model->GetMesh() == nullptr || model->GetShader() == nullptr)
+    if (model->mesh == nullptr || model->shader == nullptr)
         return;
-    if (model->GetMesh()->vertexTypeSize == 0)
+    if (model->mesh->vertexTypeSize == 0)
         return;
 
-    model->GetMesh()->Bind();
-    model->GetShader()->Bind();
+    model->mesh->Bind();
+    model->shader->Bind();
 
-    Transform* transform = model->GameObject()->transform();
+    Transform* transform = &model->GameObject()->transform;
 
     glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(transform->position.x, transform->position.y, transform->position.z));
 
     glm::mat4 mvp = projectionMatrix * viewMatrix * transformMatrix;
-    model->GetShader()->SetMVP(&mvp[0][0]);
+    model->shader->SetMVP("MVP", & mvp[0][0]);
 
-    if (model->GetMesh()->hasIndexBuffer)
+    if (model->mesh->hasIndexBuffer)
     {
-        GLCall(glDrawElements(GL_TRIANGLES, model->GetMesh()->indexCount, model->GetMesh()->indexType, nullptr));
+        GLCall(glDrawElements(GL_TRIANGLES, model->mesh->indexCount, model->mesh->indexType, nullptr));
     }
     else
     {
-        GLCall(glDrawArrays(GL_TRIANGLES, 0, model->GetMesh()->vertexCount));
+        GLCall(glDrawArrays(GL_TRIANGLES, 0, model->mesh->vertexCount));
     }
 }
 
@@ -116,6 +115,8 @@ int Renderer::Init()
         GLCall(glEnable(GL_CULL_FACE));
         GLCall(glFrontFace(GL_CCW));
     }
+
+    return 0;
 }
 
 void Renderer::SetCamera(Camera* _camera)
@@ -137,11 +138,11 @@ void Renderer::Render()
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         projectionMatrix = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 150.0f);
-        viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(camera->Transform()->position.x, camera->Transform()->position.y, camera->Transform()->position.z));
+        viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(camera->transform.position.x, camera->transform.position.y, camera->transform.position.z));
         viewMatrix = glm::inverse(viewMatrix);
 
-        std::map<unsigned int, Model>::iterator i;
-        for (i = ComponentHandler::GetModelComponents()->begin(); i != ComponentHandler::GetModelComponents()->end(); ++i)
+        std::unordered_map<unsigned int, Model>::iterator i;
+        for (i = Scene::currentScene->componentHandler.modelComponents.begin(); i != Scene::currentScene->componentHandler.modelComponents.end(); ++i)
             DrawModel(i->first);
     }
 

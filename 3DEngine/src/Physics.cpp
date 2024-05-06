@@ -1,16 +1,17 @@
 #include "Physics.h"
 #include "EngineTime.h"
 #include "GameObject.h"
+#include "Scene.h"
 
 float Physics::gravity = -9.81f;
-std::map<unsigned int, BoxCollider*> Physics::collidiersToResolve;
+std::vector<BoxCollider*> Physics::collidiersToResolve;
 
 void Physics::ApplyGravity()
 {
-	std::map<unsigned int, Rigidbody>::iterator i;
-	for (i = ComponentHandler::GetRigidbodyComponents()->begin(); i != ComponentHandler::GetRigidbodyComponents()->end(); ++i)
+	std::unordered_map<unsigned int, Rigidbody>::iterator i;
+	for (i = Scene::currentScene->componentHandler.rigidbodyComponents.begin(); i != Scene::currentScene->componentHandler.rigidbodyComponents.end(); ++i)
 	{
-		Rigidbody* rigidbody = ComponentHandler::GetComponentUnsafe<Rigidbody>(i->first);
+		Rigidbody* rigidbody = &i->second;
 		if (rigidbody->doGravity && rigidbody->isEnabled)
 		{
 			rigidbody->velocity.y += gravity * EngineTime::deltaTime;
@@ -20,13 +21,13 @@ void Physics::ApplyGravity()
 
 void Physics::FinalizePosition()
 {
-	std::map<unsigned int, Rigidbody>::iterator i;
-	for (i = ComponentHandler::GetRigidbodyComponents()->begin(); i != ComponentHandler::GetRigidbodyComponents()->end(); ++i)
+	std::unordered_map<unsigned int, Rigidbody>::iterator i;
+	for (i = Scene::currentScene->componentHandler.rigidbodyComponents.begin(); i != Scene::currentScene->componentHandler.rigidbodyComponents.end(); ++i)
 	{
-		Rigidbody* rigidbody = ComponentHandler::GetComponentUnsafe<Rigidbody>(i->first);
+		Rigidbody* rigidbody = &i->second;
 		if (rigidbody->isEnabled)
 		{
-			Transform* transform = rigidbody->GameObject()->transform();
+			Transform* transform = &rigidbody->GameObject()->transform;
 
 			transform->position.x += rigidbody->velocity.x * EngineTime::deltaTime;
 			transform->position.y += rigidbody->velocity.y * EngineTime::deltaTime;
@@ -129,32 +130,32 @@ void Physics::DoAABBCollisionCheck(BoxCollider* colliderOne, BoxCollider* collid
 		colliderOne->collisions.push_back(collisionOne);
 		colliderTwo->collisions.push_back(collisionTwo);
 
-		Physics::collidiersToResolve[colliderOne->componentGameObjectId] = colliderOne;
-		Physics::collidiersToResolve[colliderTwo->componentGameObjectId] = colliderTwo;
+		collidiersToResolve.push_back(colliderOne);
+		collidiersToResolve.push_back(colliderTwo);
 	}
 }
 
 void Physics::CollisionCheck()
 {
-	Physics::collidiersToResolve.clear();
+	collidiersToResolve.clear();
 
-	std::map<unsigned int, BoxCollider>::iterator i;
-	for (i = ComponentHandler::GetBoxColliderComponents()->begin(); i != ComponentHandler::GetBoxColliderComponents()->end(); ++i)
+	std::unordered_map<unsigned int, BoxCollider>::iterator i;
+	for (i = Scene::currentScene->componentHandler.boxColliderComponents.begin(); i != Scene::currentScene->componentHandler.boxColliderComponents.end(); ++i)
 	{
-		BoxCollider* colliderOne = ComponentHandler::GetComponentUnsafe<BoxCollider>(i->first);
+		BoxCollider* colliderOne = &i->second;
 		if (colliderOne->isEnabled && !colliderOne->isTrigger)
 		{
-			Rigidbody* rigidbody = ComponentHandler::GetComponent<Rigidbody>(i->first);
+			Rigidbody* rigidbody = Scene::currentScene->componentHandler.GetComponent<Rigidbody>(i->first);
 			if (rigidbody != nullptr)
 			{
 				if (rigidbody->isEnabled)
 				{
-					std::map<unsigned int, BoxCollider>::iterator k;
-					for (k = ComponentHandler::GetBoxColliderComponents()->begin(); k != ComponentHandler::GetBoxColliderComponents()->end(); ++k)
+					std::unordered_map<unsigned int, BoxCollider>::iterator k;
+					for (k = Scene::currentScene->componentHandler.boxColliderComponents.begin(); k != Scene::currentScene->componentHandler.boxColliderComponents.end(); ++k)
 					{
 						if (k->first != i->first)
 						{
-							BoxCollider* colliderTwo = ComponentHandler::GetComponentUnsafe<BoxCollider>(k->first);
+							BoxCollider* colliderTwo = &k->second;
 							//Check if these two have already made a collision
 							bool noCollision = true;
 							for (int j = 0; j < colliderOne->collisions.size(); j++)
@@ -164,8 +165,8 @@ void Physics::CollisionCheck()
 							}
 							if (noCollision)
 							{
-								Transform* t_one = colliderOne->GameObject()->transform();
-								Transform* t_two = colliderTwo->GameObject()->transform();
+								Transform* t_one = &colliderOne->GameObject()->transform;
+								Transform* t_two = &colliderTwo->GameObject()->transform;
 
 								DoAABBCollisionCheck(colliderOne, colliderTwo, t_one, t_two);
 							}
@@ -179,10 +180,9 @@ void Physics::CollisionCheck()
 
 void Physics::ResolveCollisions()
 {
-	std::map<unsigned int, BoxCollider*>::iterator colliderI;
-	for (colliderI = collidiersToResolve.begin(); colliderI != collidiersToResolve.end(); ++colliderI)
+	for (int colliderI = 0; colliderI < collidiersToResolve.size(); colliderI++)
 	{
-		BoxCollider* bc = colliderI->second;
+		BoxCollider* bc = collidiersToResolve[colliderI];
 		Rigidbody* rb = bc->GameObject()->GetComponent<Rigidbody>();
 
 		if (rb != nullptr)
@@ -191,7 +191,7 @@ void Physics::ResolveCollisions()
 			{
 				Rigidbody* otherRb = bc->collisions[i].otherCollider->GameObject()->GetComponent<Rigidbody>();
 
-				Transform* t = rb->GameObject()->transform();
+				Transform* t = &rb->GameObject()->transform;
 
 				float x = bc->collisions[i].collisionForceDirection.x;
 				float y = bc->collisions[i].collisionForceDirection.y;
@@ -200,6 +200,7 @@ void Physics::ResolveCollisions()
 				rb->velocity.x = (x == 0.0f) ? rb->velocity.x : 0.0f;
 				rb->velocity.y = (y == 0.0f) ? rb->velocity.y : 0.0f;
 				rb->velocity.z = (z == 0.0f) ? rb->velocity.z : 0.0f;
+				
 				//Both objects have rigidbodys, so only move each half the distance of the penetration depth
 				if (otherRb != nullptr)
 				{
@@ -217,5 +218,14 @@ void Physics::ResolveCollisions()
 			}
 		}
 		bc->collisions.clear();
+	}
+}
+
+void Physics::ApplyForces()
+{
+	std::unordered_map<unsigned int, Rigidbody>::iterator i;
+	for (i = Scene::currentScene->componentHandler.rigidbodyComponents.begin(); i != Scene::currentScene->componentHandler.rigidbodyComponents.end(); ++i)
+	{
+		Rigidbody* rb = &i->second;
 	}
 }

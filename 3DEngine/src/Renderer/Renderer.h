@@ -14,17 +14,21 @@ private:
 	void DrawModel(unsigned int objectId);
 
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-public:
-	Renderer();
 
 	static char keyPressed;
 
 	GLFWwindow* window;
 	Camera* camera;
 	bool shouldWindowClose = false;
+	
+	Renderer();
 
 	int Init();
 	void SetCamera(Camera* camera);
 	void Clear();
 	void Render();
+public:
+
+private:
+	friend class Engine;
 };

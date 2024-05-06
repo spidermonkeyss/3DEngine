@@ -5,8 +5,10 @@ class Camera
 {
 private:
 	Transform transform;
-public:
 	Camera();
-
+public:
 	inline Transform* Transform() { return &transform; }
+private:
+	friend class Engine;
+	friend class Renderer;
 };

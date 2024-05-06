@@ -1,34 +1,32 @@
 #pragma once
 #include "Component/ComponentHandler.h"
 
-#include <memory>
-
 class GameObject
 {
 private:
 	unsigned int objectId;
 	static unsigned int nextObjectId;
-	inline static std::map<unsigned int, std::unique_ptr<GameObject>> gameObjects;
-	Transform _transform;
+	Transform transform;
 
 	GameObject();
+	
+	static GameObject* GetGameObjectByObjectId(unsigned int objectId);
 public:
 	~GameObject();
 
-	template<typename T> T* AddComponent() { return ComponentHandler::AddComponent<T>(objectId); }
-	template<typename T> void RemoveComponent() { ComponentHandler::RemoveComponent<T>(objectId); }
-	template<typename T> T* GetComponent() { return ComponentHandler::GetComponent<T>(objectId); }
+	template<typename T> T* AddComponent() { return Scene::currentScene->componentHandler.AddComponent<T>(objectId); }
+	template<typename T> void RemoveComponent() { Scene::currentScene->componentHandler.RemoveComponent<T>(objectId); }
+	template<typename T> T* GetComponent() { return Scene::currentScene->componentHandler.GetComponent<T>(objectId); }
 	//WARNGING: This will add a component if one does not exist already, but is a little faster due to not checking if the component exists first before grabbing it
-	template<typename T> T* GetComponentUnsafe() { return ComponentHandler::GetComponentUnsafe<T>(objectId); }
-
+	template<typename T> T* GetComponentUnsafe() { return Scene::currentScene->componentHandler.GetComponentUnsafe<T>(objectId); }
+	
 	static GameObject* CreateGameObject();
 	static void DestroyGameObject(GameObject* gameObject);
-	
-	inline Transform* transform() { return &_transform; }
-	inline unsigned int ID() { return objectId; }
 
-	static GameObject* GetGameObjectByObjectId(unsigned int objectId);
-	inline static unsigned int GetNextObjectId(){ return nextObjectId; }
-
-	//inline static std::map<unsigned int, GameObject>* DEBUG_GetGameObjectsMap() { return &gameObjects; }
+private:
+	friend class Engine;
+	friend class Component;
+	friend class Physics;
+	friend class Renderer;
+	friend class Scene;
 };
