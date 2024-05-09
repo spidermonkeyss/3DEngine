@@ -10,13 +10,15 @@ private:
 	static Scene* currentScene;
 
 	std::unordered_map<unsigned int, std::unique_ptr<GameObject>> gameObjects;
-	std::vector<Shader> shaders;
 	std::vector<Mesh> meshes;
+	std::vector<Shader> shaders;
 	std::vector<Texture> textures;
+	std::vector<Material> materials;
 
 	ComponentHandler componentHandler;
 
 	Scene();
+	void LoadMaterials();
 	void CreateGameObjects(std::vector<Shader>* shaders, std::vector<Mesh>* meshes);
 public:
 	void LoadScene(const std::string& filePath);

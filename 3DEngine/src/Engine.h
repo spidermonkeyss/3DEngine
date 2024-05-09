@@ -7,7 +7,7 @@
 class Engine
 {
 private:
-	static void CreateGameObjects(std::vector<Shader>* shaders, std::vector<Mesh>* meshes);
+	static void RunImGuiFrame();
 public:
 	static int RunEngine();
 };

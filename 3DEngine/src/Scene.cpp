@@ -64,6 +64,23 @@ std::vector<Mesh> LoadMeshes(const std::string& filePath)
     return meshes;
 }
 
+void Scene::LoadMaterials()
+{
+    Material m1;
+    m1.SetShader(&shaders[0]);
+    materials.push_back(m1);
+
+    Material m2;
+    m2.SetShader(&shaders[1]);
+    m2.SetTexture("u_Texture", &textures[0]);
+    materials.push_back(m2);
+
+    Material m3;
+    m3.SetShader(&shaders[2]);
+    m3.SetFloat("opacity", 1.0f);
+    materials.push_back(m3);
+}
+
 void Scene::CreateGameObjects(std::vector<Shader>* shaders, std::vector<Mesh>* meshes)
 {
     float xSpacing = 3.0f;
@@ -78,9 +95,7 @@ void Scene::CreateGameObjects(std::vector<Shader>* shaders, std::vector<Mesh>* m
             gameObject->transform.SetPosition(meshIndex * xSpacing, shaderIndex * ySpacing, 0.0f);
             Model* model = gameObject->AddComponent<Model>();
             model->SetMesh(&meshes->at(meshIndex));
-            model->SetShader(&shaders->at(shaderIndex));
-            
-            model->ApplyTexture(&textures[0], "u_Texture");
+            model->SetMaterial(&materials.at(shaderIndex));
 
             if (shaderIndex > 0)
             {
@@ -104,7 +119,7 @@ void Scene::CreateGameObjects(std::vector<Shader>* shaders, std::vector<Mesh>* m
     gameObject->transform.SetPosition(0.5f, shaders->size() * ySpacing, 0.0f);
     Model* model = gameObject->AddComponent<Model>();
     model->SetMesh(&meshes->at(1));
-    model->SetShader(&shaders->at(2));
+    model->SetMaterial(&materials.at(2));
     gameObject->AddComponent<Rigidbody>();
     BoxCollider* bc = gameObject->AddComponent<BoxCollider>();
     bc->lengths.x = 2.0f;
@@ -115,7 +130,7 @@ void Scene::CreateGameObjects(std::vector<Shader>* shaders, std::vector<Mesh>* m
     gameObject2->transform.SetPosition(-10.0f, 2.5f, 0.0f);
     Model* model2 = gameObject2->AddComponent<Model>();
     model2->SetMesh(&meshes->at(0));
-    model2->SetShader(&shaders->at(2));
+    model2->SetMaterial(&materials.at(2));
     Rigidbody* rb2 = gameObject2->AddComponent<Rigidbody>();
     rb2->doGravity = true;
     rb2->velocity.x = 10.0f;
@@ -137,5 +152,6 @@ void Scene::LoadScene(const std::string& filePath)
     textures = LoadTextures("res/textures/");
     shaders = LoadShaders("res/Shaders/");
     meshes = LoadMeshes("res/Meshes/");
+    LoadMaterials();
     CreateGameObjects(&shaders, &meshes);
 }

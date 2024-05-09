@@ -1,23 +1,22 @@
 #pragma once
 #include "Renderer/Mesh.h"
-#include "Renderer/Shader.h"
-#include "Renderer/Texture.h"
+#include "Renderer/Material.h"
 #include "Component.h"
 
 class Model : public Component
 {
 private:
 	Mesh* mesh;
-	Shader* shader;
-	Texture* texture;
+	Material* material;
+
 public:
 	Model();
 
 	void SetMesh(Mesh* mesh);
-	void SetShader(Shader* shader);
-	void ApplyTexture(Texture* texture, const std::string& shaderUniformName);
+	void SetMaterial(Material* material);
 	
 private:
+	friend class Engine;
 	friend class Renderer;
 };
 

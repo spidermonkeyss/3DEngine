@@ -35,10 +35,12 @@ void Texture::LoadGLTexture(const std::string& filePath)
 bool Texture::LoadTextureFile(const std::string& filePath)
 {
     std::string extensionTypeStr = FileLoader::GetFileExtension(filePath);
+	std::string _fileName = FileLoader::GetFileName(filePath);
 
     if (extensionTypeStr == "png")
     {
         LoadGLTexture(filePath);
+		fileName = _fileName;
 		return true;
     }
     else

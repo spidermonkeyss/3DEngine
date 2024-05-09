@@ -29,7 +29,37 @@ void Shader::LoadGlShader(const std::string& vertexShader, const std::string& fr
     GLCall(glDeleteShader(vertex_shader_id));
     GLCall(glDeleteShader(fragment_shader_id));
 
-    //mvp_location = glGetUniformLocation(gl_ShaderId, "MVP");
+
+    int numActiveAttribs = 0;
+    int numActiveUniforms = 0;
+    GLCall(glGetProgramInterfaceiv(gl_ShaderId, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &numActiveAttribs));
+    GLCall(glGetProgramInterfaceiv(gl_ShaderId, GL_UNIFORM, GL_ACTIVE_RESOURCES, &numActiveUniforms));
+
+    GLint size; // size of the variable
+    GLenum type; // type of the variable (float, vec3 or mat4, etc)
+    const GLsizei bufSize = 16; // maximum name length
+    GLchar name[bufSize]; // variable name in GLSL
+    GLsizei length; // name length
+
+    for (int i = 0; i < numActiveAttribs; i++)
+    {
+        glGetActiveAttrib(gl_ShaderId, (GLuint)i, bufSize, &length, &size, &type, name);
+        ShaderProperity sp;
+        sp.location = i;
+        sp.name = name;
+        sp.type = type;
+        attributies[name] = sp;
+    }
+
+    for (int i = 0; i < numActiveUniforms; i++)
+    {
+        glGetActiveUniform(gl_ShaderId, (GLuint)i, bufSize, &length, &size, &type, name);
+        ShaderProperity sp;
+        sp.location = i;
+        sp.name = name;
+        sp.type = type;
+        uniforms[name] = sp;
+    }
 }
 
 bool Shader::LoadShaderFile(const std::string& filePath)
@@ -55,17 +85,17 @@ bool Shader::LoadShaderFile(const std::string& filePath)
 
 void Shader::SetMVP(const std::string& mvpUniformName, const float* mvp)
 {
-    glUniformMatrix4fv(GetUniformLocation(mvpUniformName), 1, GL_FALSE, mvp);
+    SetUniformMat4(mvpUniformName, mvp);
 }
 
 bool Shader::SetTexture(const std::string& name, int slot, Texture* texture)
 {
-    texture->Bind(slot);
     Bind();
     int result = GetUniformLocation(name);
     if (result == -1)
         return false;
 
+    texture->Bind(slot);
     GLCall(glUniform1i(result, slot));
     return true;
 }
@@ -73,6 +103,32 @@ bool Shader::SetTexture(const std::string& name, int slot, Texture* texture)
 void Shader::SetUniform1i(const std::string& name, int value)
 {
     GLCall(glUniform1i(GetUniformLocation(name), value));
+
+}
+
+void Shader::SetUniform1f(const std::string& name, float value)
+{
+    GLCall(glUniform1f(GetUniformLocation(name), value));
+}
+
+void Shader::SetUniform2f(const std::string& name, float v1, float v2)
+{
+    GLCall(glUniform2f(GetUniformLocation(name), v1, v2));
+}
+
+void Shader::SetUniform3f(const std::string& name, float v1, float v2, float v3)
+{
+    GLCall(glUniform3f(GetUniformLocation(name), v1, v2, v3));
+}
+
+void Shader::SetUniform4f(const std::string& name, float v1, float v2, float v3, float v4)
+{
+    GLCall(glUniform4f(GetUniformLocation(name), v1, v2, v3, v4));
+}
+
+void Shader::SetUniformMat4(const std::string& name, const float* mat4)
+{
+    glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, mat4);
 }
 
 Shader::~Shader()
@@ -85,14 +141,24 @@ void Shader::Bind()
     GLCall(glUseProgram(gl_ShaderId));
 }
 
+int Shader::GetAttributeLocation(const std::string& name)
+{
+    if (attributies.find(name) != attributies.end())
+        return attributies[name].location;
+    else
+    {
+        std::cout << "Warning: " << name << " attributie not found\n";
+        return -1;
+    }
+}
+
 int Shader::GetUniformLocation(const std::string& name)
 {
-    if (uniformLocationCache.find(name) != uniformLocationCache.end())
-        return uniformLocationCache[name];
-
-    GLCall(int location = glGetUniformLocation(gl_ShaderId, name.c_str()));
-    if (location == -1)
-        std::cout << "Warning: uniform " << name << " doesn't exist!" << std::endl;
-    uniformLocationCache[name] = location;
-    return location;
+    if (uniforms.find(name) != uniforms.end())
+        return uniforms[name].location;
+    else
+    {
+        std::cout << "Warning: " << name << " uniform not found\n";
+        return -1;
+    }
 }

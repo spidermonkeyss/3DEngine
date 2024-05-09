@@ -23,6 +23,33 @@ std::string FileLoader::GetFileExtension(const std::string& filePath)
     return filePath.substr(fileExtensionDotIndex + 1, filePath.size() - 1);
 }
 
+std::string FileLoader::GetFileName(const std::string& filePath)
+{
+    int fileExtensionDotIndex = filePath.find_last_of('.');
+    int fileBackSlashIndex = filePath.find_last_of('/');
+
+    if (fileExtensionDotIndex == -1)
+    {
+        std::cout << "File name has no extension. No extension found\n";
+        return "";
+    }
+
+    if (fileExtensionDotIndex == filePath.size() - 1)
+    {
+        std::cout << "File name ends with dot. No extension found\n";
+        return "";
+    }
+
+    if (fileBackSlashIndex == -1)
+    {
+        return filePath.substr(0, fileExtensionDotIndex);
+    }
+    else
+    {
+        return filePath.substr(fileBackSlashIndex + 1, fileExtensionDotIndex - fileBackSlashIndex - 1);
+    }
+}
+
 bool FileLoader::LoadOBJFile(const std::string& filePath, float** vertexData, VertexAttributeInfo* attributeInfo, int& vertexCount)
 {
     try

@@ -27,6 +27,7 @@ private:
 	void SetCamera(Camera* camera);
 	void Clear();
 	void Render();
+	void SwapBuffer();
 public:
 
 private:

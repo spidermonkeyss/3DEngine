@@ -6,8 +6,7 @@
 Model::Model()
 {
 	mesh = nullptr;
-	shader = nullptr;
-	texture = nullptr;
+	material = nullptr;
 }
 
 void Model::SetMesh(Mesh* _mesh)
@@ -15,13 +14,7 @@ void Model::SetMesh(Mesh* _mesh)
 	mesh = _mesh;
 }
 
-void Model::SetShader(Shader* _shader)
+void Model::SetMaterial(Material* _material)
 {
-	shader = _shader;
-}
-
-void Model::ApplyTexture(Texture* _texture, const std::string& shaderUniformName)
-{
-	texture = _texture;
-	shader->SetTexture(shaderUniformName, 0, _texture);
+	material = _material;
 }

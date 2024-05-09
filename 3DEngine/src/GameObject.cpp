@@ -1,7 +1,5 @@
 #include "GameObject.h"
 #include "Transform.h"
-//#include "Component/Model.h"
-//#include "Component/Rigidbody.h"
 #include "Scene.h"
 
 #include <iostream>
@@ -22,8 +20,8 @@ GameObject* GameObject::CreateGameObject()
 {
 	unsigned int objectId = nextObjectId;
 	nextObjectId++;
-	std::unique_ptr<GameObject> wee(new GameObject());
-	Scene::currentScene->gameObjects[objectId] = std::move(wee);
+	std::unique_ptr<GameObject> go(new GameObject());
+	Scene::currentScene->gameObjects[objectId] = std::move(go);
 	Scene::currentScene->gameObjects[objectId]->objectId = objectId;
 	return Scene::currentScene->gameObjects[objectId].get();
 }

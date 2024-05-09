@@ -30,6 +30,7 @@ public:
     };
 
     static std::string GetFileExtension(const std::string& filePath);
+    static std::string GetFileName(const std::string& filePath);
     static bool LoadOBJFile(const std::string& filePath, float** vertexData, VertexAttributeInfo* attributeInfo, int& vertexCount);
     static std::vector<std::string> LoadShaderFile(const std::string& filePath);
 };

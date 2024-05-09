@@ -15,7 +15,8 @@ project "3DEngine"
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/src/**.hpp",
-		"Dependencies/stb_image/**"
+		"Dependencies/stb_image/**",
+		"Dependencies/imgui/**"
 	}
 
 	includedirs
@@ -25,7 +26,8 @@ project "3DEngine"
 		"Dependencies/GLFW/include",
 		"Dependencies/GLEW/include",
 		"Dependencies/glm",
-		"Dependencies/stb_image"
+		"Dependencies/stb_image",
+		"Dependencies/imgui"
 	}
 
 	libdirs

@@ -156,19 +156,22 @@ void Physics::CollisionCheck()
 						if (k->first != i->first)
 						{
 							BoxCollider* colliderTwo = &k->second;
-							//Check if these two have already made a collision
-							bool noCollision = true;
-							for (int j = 0; j < colliderOne->collisions.size(); j++)
+							if (colliderTwo->isEnabled)
 							{
-								if (colliderOne->collisions[j].otherCollider == colliderTwo)
-									noCollision = false;
-							}
-							if (noCollision)
-							{
-								Transform* t_one = &colliderOne->GameObject()->transform;
-								Transform* t_two = &colliderTwo->GameObject()->transform;
+								//Check if these two have already made a collision
+								bool noCollision = true;
+								for (int j = 0; j < colliderOne->collisions.size(); j++)
+								{
+									if (colliderOne->collisions[j].otherCollider == colliderTwo)
+										noCollision = false;
+								}
+								if (noCollision)
+								{
+									Transform* t_one = &colliderOne->GameObject()->transform;
+									Transform* t_two = &colliderTwo->GameObject()->transform;
 
-								DoAABBCollisionCheck(colliderOne, colliderTwo, t_one, t_two);
+									DoAABBCollisionCheck(colliderOne, colliderTwo, t_one, t_two);
+								}
 							}
 						}
 					}
@@ -204,9 +207,18 @@ void Physics::ResolveCollisions()
 				//Both objects have rigidbodys, so only move each half the distance of the penetration depth
 				if (otherRb != nullptr)
 				{
-					t->position.x -= x * bc->collisions[i].penDepth / 2.0f;
-					t->position.y -= y * bc->collisions[i].penDepth / 2.0f;
-					t->position.z -= z * bc->collisions[i].penDepth / 2.0f;
+					if (otherRb->isEnabled)
+					{
+						t->position.x -= x * bc->collisions[i].penDepth / 2.0f;
+						t->position.y -= y * bc->collisions[i].penDepth / 2.0f;
+						t->position.z -= z * bc->collisions[i].penDepth / 2.0f;
+					}
+					else
+					{
+						t->position.x -= x * bc->collisions[i].penDepth;
+						t->position.y -= y * bc->collisions[i].penDepth;
+						t->position.z -= z * bc->collisions[i].penDepth;
+					}
 				}
 				//only one object has a rigidbody, so move it full pen depth distacne
 				else

@@ -19,7 +19,8 @@ void main()
 #version 110
 varying vec3 f_normal;
 varying vec3 f_col;
+uniform float opacity;
 void main()
 {
-	gl_FragColor = vec4(f_col, 1.0);
+	gl_FragColor = vec4(f_col, opacity);
 }

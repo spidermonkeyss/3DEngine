@@ -43,20 +43,21 @@ void Renderer::DrawModel(unsigned int objectId)
 
     if (!model->isEnabled)
         return;
-    if (model->mesh == nullptr || model->shader == nullptr)
+    if (model->mesh == nullptr || model->material->shader == nullptr)
         return;
     if (model->mesh->vertexTypeSize == 0)
         return;
 
     model->mesh->Bind();
-    model->shader->Bind();
+    model->material->shader->Bind();
+    model->material->ApplyMaterialToShader();
 
     Transform* transform = &model->GameObject()->transform;
 
     glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(transform->position.x, transform->position.y, transform->position.z));
 
     glm::mat4 mvp = projectionMatrix * viewMatrix * transformMatrix;
-    model->shader->SetMVP("MVP", & mvp[0][0]);
+    model->material->shader->SetMVP("MVP", & mvp[0][0]);
 
     if (model->mesh->hasIndexBuffer)
     {
@@ -76,7 +77,7 @@ int Renderer::Init()
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    window = glfwCreateWindow(640, 480, "3DEngine", NULL, NULL);
+    window = glfwCreateWindow(1280, 960, "3DEngine", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -127,12 +128,12 @@ void Renderer::SetCamera(Camera* _camera)
 void Renderer::Clear()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    GLCall(glClearColor(0.14f, 0.5f, 0.85f, 1.0f));
+    // 0.14f, 0.5f, 0.85f, 1.0f
 }
 
 void Renderer::Render()
 {
-    Clear();
-
     if (camera != nullptr)
     {
         int width, height;
@@ -145,7 +146,10 @@ void Renderer::Render()
         for (i = Scene::currentScene->componentHandler.modelComponents.begin(); i != Scene::currentScene->componentHandler.modelComponents.end(); ++i)
             DrawModel(i->first);
     }
+}
 
+void Renderer::SwapBuffer()
+{
     glfwSwapBuffers(window);
     glfwPollEvents();
     shouldWindowClose = glfwWindowShouldClose(window);
