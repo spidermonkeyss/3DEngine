@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "LinkedList.h"
 
 #include <string>
 #include <vector>
@@ -10,16 +11,16 @@ private:
 	static Scene* currentScene;
 
 	std::unordered_map<unsigned int, std::unique_ptr<GameObject>> gameObjects;
-	std::vector<Mesh> meshes;
-	std::vector<Shader> shaders;
-	std::vector<Texture> textures;
-	std::vector<Material> materials;
+	LinkedList<Shader> shaders;
+	LinkedList<Mesh> meshes;
+	LinkedList<Texture> textures;
+	LinkedList<Material> materials;
 
 	ComponentHandler componentHandler;
 
 	Scene();
 	void LoadMaterials();
-	void CreateGameObjects(std::vector<Shader>* shaders, std::vector<Mesh>* meshes);
+	void CreateGameObjects();
 public:
 	void LoadScene(const std::string& filePath);
 
@@ -28,4 +29,9 @@ private:
 	friend class Engine;
 	friend class Renderer;
 	friend class Physics;
+	friend class Texture;
+	friend class Material;
+	friend class Mesh;
+	friend class Shader;
+	friend class Model;
 };

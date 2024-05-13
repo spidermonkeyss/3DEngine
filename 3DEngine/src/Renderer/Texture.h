@@ -6,17 +6,20 @@
 class Texture
 {
 private:
-	std::string fileName;
+	std::string filePath;
+	bool isLoaded;
 	unsigned int gl_TextureId;
-	unsigned char* m_LocalBuffer;
-	int m_Width, m_Height, m_BPP;
+	unsigned char* localBuffer;
+	int width, height, BPP;
 
 	void Bind(unsigned int slot);
 	void Unbind();
 
 	void LoadGLTexture(const std::string& filePath);
 
+	Texture();
 public:
+	static Texture* CreateTexture();
 	bool LoadTextureFile(const std::string& filePath);
 
 private:
@@ -24,4 +27,5 @@ private:
 	friend class Renderer;
 	friend class Model;
 	friend class Shader;
+	friend class Material;
 };

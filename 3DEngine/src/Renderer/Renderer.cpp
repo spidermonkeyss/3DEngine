@@ -45,7 +45,7 @@ void Renderer::DrawModel(unsigned int objectId)
         return;
     if (model->mesh == nullptr || model->material->shader == nullptr)
         return;
-    if (model->mesh->vertexTypeSize == 0)
+    if (!model->mesh->isLoaded || !model->material->shader->isLoaded)
         return;
 
     model->mesh->Bind();

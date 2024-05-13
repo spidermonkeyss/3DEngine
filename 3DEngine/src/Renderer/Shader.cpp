@@ -1,5 +1,11 @@
 #include "Shader.h"
 #include "GLCall.h"
+#include "Scene.h"
+
+Shader::Shader()
+    :isLoaded(false), gl_ShaderId(0), filePath("")
+{
+}
 
 void Shader::LoadGlShader(const std::string& vertexShader, const std::string& fragmentShader)
 {
@@ -62,17 +68,19 @@ void Shader::LoadGlShader(const std::string& vertexShader, const std::string& fr
     }
 }
 
-bool Shader::LoadShaderFile(const std::string& filePath)
+bool Shader::LoadShaderFile(const std::string& _filePath)
 {
-    std::string extensionTypeStr = FileLoader::GetFileExtension(filePath);
+    std::string extensionTypeStr = FileLoader::GetFileExtension(_filePath);
 
     if (extensionTypeStr == "shader")
     {
-        std::vector<std::string> shaderStrings = FileLoader::LoadShaderFile(filePath);
+        std::vector<std::string> shaderStrings = FileLoader::LoadShaderFile(_filePath);
 
         if (shaderStrings.size() != 0)
         {
             LoadGlShader(shaderStrings[0], shaderStrings[1]);
+            isLoaded = true;
+            filePath = _filePath;
             return true;
         }
     }
@@ -91,6 +99,8 @@ void Shader::SetMVP(const std::string& mvpUniformName, const float* mvp)
 bool Shader::SetTexture(const std::string& name, int slot, Texture* texture)
 {
     Bind();
+    if (!texture->isLoaded)
+        return false;
     int result = GetUniformLocation(name);
     if (result == -1)
         return false;
@@ -134,6 +144,12 @@ void Shader::SetUniformMat4(const std::string& name, const float* mat4)
 Shader::~Shader()
 {
     //GLCall(glDeleteProgram(gl_ShaderId));
+}
+
+Shader* Shader::CreateShader()
+{
+    Scene::currentScene->shaders.PushBack(new Shader());
+    return Scene::currentScene->shaders.Back();
 }
 
 void Shader::Bind()

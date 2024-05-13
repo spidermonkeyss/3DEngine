@@ -16,7 +16,10 @@ private:
 		GLenum type;
 	};
 
+	bool isLoaded;
 	unsigned int gl_ShaderId;
+	std::string filePath;
+	
 	std::unordered_map<std::string, ShaderProperity> attributies;
 	std::unordered_map<std::string, ShaderProperity> uniforms;
 
@@ -36,11 +39,17 @@ private:
 	int GetUniformLocation(const std::string& name);
 
 	void Bind();
+
+	Shader();
 public:
 	~Shader();
+	
+	static Shader* CreateShader();
 
 	bool LoadShaderFile(const std::string& filePath);
 private:
+	friend class Engine;
+	friend class Scene;
 	friend class Renderer;
 	friend class Material;
 };

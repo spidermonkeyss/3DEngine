@@ -50,7 +50,7 @@ std::string FileLoader::GetFileName(const std::string& filePath)
     }
 }
 
-bool FileLoader::LoadOBJFile(const std::string& filePath, float** vertexData, VertexAttributeInfo* attributeInfo, int& vertexCount)
+bool FileLoader::LoadOBJFile(const std::string& filePath, float** vertexData, std::vector<Mesh::VertexAttributeLayout>* attributeLayouts, int& vertexCount)
 {
     try
     {
@@ -221,9 +221,9 @@ bool FileLoader::LoadOBJFile(const std::string& filePath, float** vertexData, Ve
         //File had both normals and uvs
         if (vertexNormals.size() != 0 && vertexUVs.size() != 0)
         {
-            attributeInfo->attributeSize.push_back(3);
-            attributeInfo->attributeSize.push_back(2);
-            attributeInfo->attributeSize.push_back(3);
+            attributeLayouts->push_back({ 3, 4 });
+            attributeLayouts->push_back({ 2, 4 });
+            attributeLayouts->push_back({ 3, 4 });
 
             vertexCount = vertexArray.size();
 

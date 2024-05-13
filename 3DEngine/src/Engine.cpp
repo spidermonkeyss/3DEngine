@@ -6,9 +6,76 @@
 #include "EngineTime.h"
 #include "Physics.h"
 #include "Scene.h"
+#include "LinkedList.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw_gl3.h>
+
+void Engine::IMGUI_ShowMesh(Mesh* mesh)
+{
+    if (ImGui::TreeNodeEx(("FilePath: " + mesh->filePath).c_str(), 0))
+    {
+        ImGui::Text(("Vertex Buffer Id: " + std::to_string(mesh->gl_VertexArrayId)).c_str());
+        ImGui::Text(("Vertex count: " + std::to_string(mesh->vertexCount)).c_str());
+        for (int i = 0; i < mesh->vertexAttributeLayouts.size(); i++)
+        {
+            std::string text = "Attribute " + std::to_string(i) + ": Count " + std::to_string(mesh->vertexAttributeLayouts[i].count) + ", type size " + std::to_string(mesh->vertexAttributeLayouts[i].typeByteSize);
+            ImGui::Text(text.c_str());
+        }
+        ImGui::TreePop();
+    }
+}
+
+void Engine::IMGUI_ShowShader(Shader* shader)
+{
+    if (ImGui::TreeNodeEx(("FilePath: " + shader->filePath).c_str(), 0))
+    {
+        ImGui::Text(("Shader Id: " + std::to_string(shader->gl_ShaderId)).c_str());
+        for (std::unordered_map<std::string, Shader::ShaderProperity>::iterator sp = shader->attributies.begin(); sp != shader->attributies.end(); ++sp)
+        {
+            std::string text = "Attribute " + std::to_string(sp->second.location) + " : " + sp->first;
+            ImGui::Text(text.c_str());
+        }
+        for (std::unordered_map<std::string, Shader::ShaderProperity>::iterator sp = shader->uniforms.begin(); sp != shader->uniforms.end(); ++sp)
+        {
+            std::string text = "Uniform " + std::to_string(sp->second.location) + " : " + sp->first;
+            ImGui::Text(text.c_str());
+        }
+        ImGui::TreePop();
+    }
+}
+
+void Engine::IMGUI_ShowTexture(Texture* texture)
+{
+    ImGui::Text(("FilePath: " + texture->filePath).c_str());
+}
+
+void Engine::IMGUI_ShowMaterial(Material* material)
+{
+    if (ImGui::TreeNodeEx(("Material " + std::to_string(material->id)).c_str(), 0))
+    {
+        ImGui::Text(("FilePath: " + material->filePath).c_str());
+        ImGui::Text(("Shader: " + material->shader->filePath).c_str());
+
+        if (ImGui::TreeNodeEx("Properties", 0))
+        {
+            for (std::unordered_map<std::string, Texture*>::iterator i = material->textures.begin(); i != material->textures.end(); ++i)
+                ImGui::Text((i->first + ": " + i->second->filePath).c_str());
+            for (std::unordered_map<std::string, int>::iterator i = material->ints.begin(); i != material->ints.end(); ++i)
+                ImGui::Text((i->first + ": " + std::to_string(i->second)).c_str());
+            for (std::unordered_map<std::string, float>::iterator i = material->floats.begin(); i != material->floats.end(); ++i)
+                ImGui::Text((i->first + ": " + std::to_string(i->second)).c_str());
+            for (std::unordered_map<std::string, float[2]>::iterator i = material->float2s.begin(); i != material->float2s.end(); ++i)
+                ImGui::Text((i->first + ": " + std::to_string(i->second[0]) + ", " + std::to_string(i->second[1])).c_str());
+            for (std::unordered_map<std::string, float[3]>::iterator i = material->float3s.begin(); i != material->float3s.end(); ++i)
+                ImGui::Text((i->first + ": " + std::to_string(i->second[0]) + ", " + std::to_string(i->second[1]) + ", " + std::to_string(i->second[2])).c_str());
+            for (std::unordered_map<std::string, float[4]>::iterator i = material->float4s.begin(); i != material->float4s.end(); ++i)
+                ImGui::Text((i->first + ": " + std::to_string(i->second[0]) + ", " + std::to_string(i->second[1]) + ", " + std::to_string(i->second[2]) + ", " + std::to_string(i->second[3])).c_str());
+            ImGui::TreePop();
+        }
+        ImGui::TreePop();
+    }
+}
 
 void Engine::RunImGuiFrame()
 {
@@ -18,15 +85,41 @@ void Engine::RunImGuiFrame()
     ImGui::ShowMetricsWindow();
 	ImGui::Text("Scene");
 
+    if (ImGui::TreeNodeEx("Meshes", 0))
+    {
+
+        for (LinkedList<Mesh>::Iterator i = Scene::currentScene->meshes.Begin(); i != Scene::currentScene->meshes.End(); ++i)
+            IMGUI_ShowMesh(i.Data());
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Shaders", 0))
+    {
+        for (LinkedList<Shader>::Iterator i = Scene::currentScene->shaders.Begin(); i != Scene::currentScene->shaders.End(); ++i)
+            IMGUI_ShowShader(i.Data());
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Textures", 0))
+    {
+        for (LinkedList<Texture>::Iterator i = Scene::currentScene->textures.Begin(); i != Scene::currentScene->textures.End(); ++i)
+            IMGUI_ShowTexture(i.Data());
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Materials", 0))
+    {
+        for (LinkedList<Material>::Iterator i = Scene::currentScene->materials.Begin(); i != Scene::currentScene->materials.End(); ++i)
+            IMGUI_ShowMaterial(i.Data());
+        ImGui::TreePop();
+    }
+
+
     //List GameObjects
-    ImGuiTreeNodeFlags open = ImGuiTreeNodeFlags_DefaultOpen;
-    if (ImGui::TreeNodeEx("GameOebjcts", open))
+    if (ImGui::TreeNodeEx("GameOebjcts", 0))
     {
         std::unordered_map<unsigned int, std::unique_ptr<GameObject>>::iterator i;
         for (i = Scene::currentScene->gameObjects.begin(); i != Scene::currentScene->gameObjects.end(); ++i)
         {
             GameObject* go = i->second.get();
-            std::string text = std::to_string(go->objectId);
+            std::string text = "ID: " + std::to_string(go->objectId);
             if (ImGui::TreeNodeEx(text.c_str(), 0))
             {
                 float pos[3] = { go->transform.position.x, go->transform.position.y, go->transform.position.z };
@@ -38,53 +131,8 @@ void Engine::RunImGuiFrame()
                 {
                     if (ImGui::TreeNodeEx("Model", 0))
                     {
-                        ImGui::Checkbox("Enabled", &model->isEnabled);
-                        {
-                            std::unordered_map<std::string, Texture*>::iterator i;
-                            for (i = model->material->textures.begin(); i != model->material->textures.end(); ++i)
-                            {
-                                ImGui::Text((i->first + ": " + i->second->fileName).c_str());
-                            }
-                        }
-                        {
-                            std::unordered_map<std::string, int>::iterator i;
-                            for (i = model->material->ints.begin(); i != model->material->ints.end(); ++i)
-                            {
-                                ImGui::Text((i->first + std::to_string(i->second)).c_str());
-                            }
-                        }
-                        {
-                            std::unordered_map<std::string, float>::iterator i;
-                            for (i = model->material->floats.begin(); i != model->material->floats.end(); ++i)
-                            {
-                         
-                            }
-                        }
-
-                        {
-                            std::unordered_map<std::string, float[2]>::iterator i;
-                            for (i = model->material->float2s.begin(); i != model->material->float2s.end(); ++i)
-                            {
-
-                            }
-                        }
-
-                        {
-                            std::unordered_map<std::string, float[3]>::iterator i;
-                            for (i = model->material->float3s.begin(); i != model->material->float3s.end(); ++i)
-                            {
-
-                            }
-                        }
-
-                        {
-                            std::unordered_map<std::string, float[4]>::iterator i;
-                            for (i = model->material->float4s.begin(); i != model->material->float4s.end(); ++i)
-                            {
-
-                            }
-                        }
-
+                        IMGUI_ShowMesh(model->mesh);
+                        IMGUI_ShowMaterial(model->material);
                         ImGui::TreePop();
                     }
                 }
@@ -94,7 +142,6 @@ void Engine::RunImGuiFrame()
                 {
                     if (ImGui::TreeNodeEx("Rigidbody", 0))
                     {
-                        ImGui::Checkbox("Enabled", &rigidbody->isEnabled);
                         ImGui::TreePop();
                     }
                 }
@@ -104,7 +151,6 @@ void Engine::RunImGuiFrame()
                 {
                     if (ImGui::TreeNodeEx("BoxCollider", 0))
                     {
-                        ImGui::Checkbox("Enabled", &boxCollider->isEnabled);
                         ImGui::TreePop();
                     }
                 }
@@ -129,7 +175,7 @@ int Engine::RunEngine()
     scene.LoadScene("");
 
     Camera camera;
-    camera.transform.SetPosition(0.0f, 0.0f, 16.0f);
+    camera.transform.SetPosition(0.0f, 0.0f, 25.0f);
 
     renderer.SetCamera(&camera);
 

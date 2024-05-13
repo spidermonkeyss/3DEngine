@@ -13,6 +13,7 @@ public:
 	Model();
 
 	void SetMesh(Mesh* mesh);
+	void SetMesh(std::string filePath);
 	void SetMaterial(Material* material);
 	
 private:

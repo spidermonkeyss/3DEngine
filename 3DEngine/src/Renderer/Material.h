@@ -1,43 +1,19 @@
 #pragma once
-
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"
 
+#include <string>
+
 class Material
 {
+protected:
+	void CreateProperties();
 private:
-	struct TextureProp
-	{
-		std::string uniformName;
-		Texture* texture;
-	};
-	struct IntProp
-	{
-		std::string uniformName;
-		int value;
-	};
-	struct FloatProp 
-	{
-		std::string uniformName;
-		float value;
-	};
-	struct Float2Prop
-	{
-		std::string uniformName;
-		float v1, v2;
-	};
-	struct Float3Prop
-	{
-		std::string uniformName;
-		float v1, v2, v3;
-	};
-	struct Float4Prop
-	{
-		std::string uniformName;
-		float v1, v2, v3, v4;
-	};
+	unsigned int id;
+	static unsigned int nextId;
 
 	Shader* shader = nullptr;
+	std::string filePath = "";
 
 	std::unordered_map<std::string, Texture*> textures;
 	std::unordered_map<std::string, int> ints;
@@ -48,9 +24,14 @@ private:
 
 	void ApplyMaterialToShader();
 
+	Material();
 public:
+	static Material* CreateMaterial();
+
 	void SetShader(Shader* shader);
+	void SetShader(std::string filePath);
 	void SetTexture(std::string uniformName, Texture * _texture);
+	void SetTexture(std::string uniformName, std::string textureFilePath);
 
 	void SetInt(std::string uniformName, int value);
 	void SetFloat(std::string uniformName, float value);

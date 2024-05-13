@@ -14,7 +14,6 @@ project "3DEngine"
 		"%{prj.name}/src/**.c",
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
-		"%{prj.name}/src/**.hpp",
 		"Dependencies/stb_image/**",
 		"Dependencies/imgui/**"
 	}
