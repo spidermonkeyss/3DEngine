@@ -56,5 +56,43 @@ void Model::SetMesh(std::string _filePath)
 
 void Model::SetMaterial(Material* _material)
 {
-	material = _material;
+	if (_material->isLoaded)
+		material = _material;
+	else
+		std::cout << "WARNING: material not loaded when trying to apply to model" << std::endl;
+}
+
+void Model::SetMaterial(std::string _filePath)
+{
+	//if the material is already loaded just set it the model
+	bool foundMaterial = false;
+
+	for (LinkedList<Material>::Iterator i = Scene::currentScene->materials.Begin(); i != Scene::currentScene->materials.End(); ++i)
+	{
+		Material* _material = i.Data();
+		if (_filePath == _material->filePath)
+		{
+			foundMaterial = true;
+			if (_material->isLoaded)
+				material = _material;
+			else
+				std::cout << "WARNING: material " + _filePath << " not loaded when trying to apply to model" << std::endl;
+		}
+	}
+
+	if (!foundMaterial)
+	{
+		std::cout << "Loading material at: " << _filePath << std::endl;
+		material = Material::CreateMaterial();
+		bool loaded = material->LoadMaterialFile(_filePath);
+		if (loaded)
+		{
+
+		}
+		else
+		{
+			material = nullptr;
+			std::cout << "WARNING: no material found by the name: " + _filePath << std::endl;
+		}
+	}
 }

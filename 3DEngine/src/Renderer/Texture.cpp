@@ -1,6 +1,6 @@
 #include "Texture.h"
 #include "Scene.h"
-#include <stb_image.h>
+#include "FileLoader.h"
 
 void Texture::Bind(unsigned int slot)
 {
@@ -15,8 +15,7 @@ void Texture::Unbind()
 
 void Texture::LoadGLTexture(const std::string& filePath)
 {
-	stbi_set_flip_vertically_on_load(1);
-	localBuffer = stbi_load(filePath.c_str(), &width, &height, &BPP, 4);
+	localBuffer = FileLoader::Load_image_file(filePath, &width, &height, &BPP, 4);
 
 	GLCall(glGenTextures(1, &gl_TextureId));
 	GLCall(glBindTexture(GL_TEXTURE_2D, gl_TextureId));
@@ -30,7 +29,7 @@ void Texture::LoadGLTexture(const std::string& filePath)
 	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 
 	if (localBuffer)
-		stbi_image_free(localBuffer);
+		free(localBuffer);
 }
 
 Texture::Texture()
@@ -38,10 +37,13 @@ Texture::Texture()
 {
 }
 
+Texture::~Texture()
+{
+}
+
 Texture* Texture::CreateTexture()
 {
-	Scene::currentScene->textures.PushBack(new Texture());
-	return Scene::currentScene->textures.Back();
+	return Scene::currentScene->CreateTexture();
 }
 
 bool Texture::LoadTextureFile(const std::string& _filePath)

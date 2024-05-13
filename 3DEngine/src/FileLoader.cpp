@@ -1,4 +1,6 @@
 #include "FileLoader.h"
+#include <stb_image.h>
+
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -50,11 +52,10 @@ std::string FileLoader::GetFileName(const std::string& filePath)
     }
 }
 
-bool FileLoader::LoadOBJFile(const std::string& filePath, float** vertexData, std::vector<Mesh::VertexAttributeLayout>* attributeLayouts, int& vertexCount)
+bool FileLoader::Load_obj_file(const std::string& filePath, float** vertexData, std::vector<Mesh::VertexAttributeLayout>* attributeLayouts, int& vertexCount)
 {
     try
     {
-
         std::ifstream stream(filePath);
         std::string line = "";
         if (line[0] == ';')
@@ -266,9 +267,15 @@ bool FileLoader::LoadOBJFile(const std::string& filePath, float** vertexData, st
     }
 }
 
-std::vector<std::string> FileLoader::LoadShaderFile(const std::string& filePath)
+std::vector<std::string> FileLoader::Load_shader_file(const std::string& filePath)
 {
     std::ifstream stream(filePath);
+    if (!stream)
+    {
+        std::cout << "Failed to find shader file: " << filePath << std::endl;
+        std::vector<std::string> ss(0);
+        return ss;
+    }
 
     enum class ShaderType {
         NONE = -1, VERTEX = 0, FRAGMENT = 1
@@ -295,4 +302,105 @@ std::vector<std::string> FileLoader::LoadShaderFile(const std::string& filePath)
     }
 
     return ss;
+}
+
+bool FileLoader::Load_bmat_file(const std::string& filePath, Material::MaterialFileProperties* mfp)
+{
+    try
+    {
+        std::ifstream stream(filePath);
+        if (!stream)
+        {
+            std::cout << "Failed to find material file: " << filePath << std::endl;
+            return false;
+        }
+
+        std::string line = "";
+        int startIndex = 4;
+        while (getline(stream, line))
+        {
+            if (line[0] == 's')
+            {
+                mfp->shaderFilePath = line.substr(startIndex, line.size() - startIndex);
+            }
+            else if (line[0] == 't')
+            {
+                int lineIndex = line.find('|');
+                std::string texturePropName = line.substr(startIndex, lineIndex - 1 - startIndex);
+                std::string textureFilePath = line.substr(lineIndex + 2, line.size() - lineIndex - 1);
+                mfp->textures.push_back({ texturePropName, textureFilePath });
+            }
+            else if (line[0] == 'i')
+            {
+                int lineIndex = line.find('|');
+                std::string propName = line.substr(startIndex, lineIndex - 1 - startIndex);
+                std::string strValue = line.substr(lineIndex + 2, line.size() - lineIndex - 1);
+                int value = std::stoi(strValue);
+                mfp->ints.push_back({ propName, value });
+            }
+            else if (line[0] == 'f')
+            {
+                int lineIndex = line.find('|');
+                std::string propName = line.substr(startIndex, lineIndex - 1 - startIndex);
+                std::string strValue = line.substr(lineIndex + 2, line.size() - lineIndex - 1);
+                float value = std::stof(strValue);
+                mfp->floats.push_back({ propName, value });
+            }
+            else if (line[0] == '2')
+            {
+                int lineIndex = line.find('|');
+                int commaIndex = line.find(',');
+                std::string propName = line.substr(startIndex, lineIndex - 1 - startIndex);
+                std::string strValue1 = line.substr(lineIndex + 2, commaIndex - lineIndex - 1);
+                std::string strValue2 = line.substr(commaIndex + 1, line.size() - commaIndex - 1);
+                float value1 = std::stof(strValue1);
+                float value2 = std::stof(strValue2);
+                mfp->float2s.push_back({ propName, value1, value2 });
+            }
+            else if (line[0] == '3')
+            {
+                int lineIndex = line.find('|');
+                int commaIndex1 = line.find(',');
+                int commaIndex2 = line.find(',', commaIndex1+1);
+                std::string propName = line.substr(startIndex, lineIndex - 1 - startIndex);
+                std::string strValue1 = line.substr(lineIndex + 2, commaIndex1 - lineIndex - 1);
+                std::string strValue2 = line.substr(commaIndex1 + 1, commaIndex2 - commaIndex1 - 1);
+                std::string strValue3 = line.substr(commaIndex2 + 1, line.size() - commaIndex2 - 1);
+                float value1 = std::stof(strValue1);
+                float value2 = std::stof(strValue2);
+                float value3 = std::stof(strValue3);
+                mfp->float3s.push_back({ propName, value1, value2, value3 });
+            }
+            else if (line[0] == '4')
+            {
+                int lineIndex = line.find('|');
+                int commaIndex1 = line.find(',');
+                int commaIndex2 = line.find(',', commaIndex1 + 1);
+                int commaIndex3 = line.find(',', commaIndex2 + 1);
+                std::string propName = line.substr(startIndex, lineIndex - 1 - startIndex);
+                std::string strValue1 = line.substr(lineIndex + 2, commaIndex1 - lineIndex - 1);
+                std::string strValue2 = line.substr(commaIndex1 + 1, commaIndex2 - commaIndex1 - 1);
+                std::string strValue3 = line.substr(commaIndex2 + 1, commaIndex3 - commaIndex2 - 1);
+                std::string strValue4 = line.substr(commaIndex3 + 1, line.size() - commaIndex3 - 1);
+                float value1 = std::stof(strValue1);
+                float value2 = std::stof(strValue2);
+                float value3 = std::stof(strValue3);
+                float value4 = std::stof(strValue4);
+                mfp->float4s.push_back({ propName, value1, value2, value3, value4 });
+            }
+        }
+
+        return true;
+    }
+    catch (...)
+    {
+        std::cout << "EXCEPTION THROW WHILE LOADING MESH: " + filePath + "\n";
+        return false;
+    }
+}
+
+unsigned char* FileLoader::Load_image_file(const std::string& filePath, int* width, int* height, int* channels, int desiredChannels)
+{
+    stbi_set_flip_vertically_on_load(1);
+    return stbi_load(filePath.c_str(), width, height, channels, desiredChannels);
 }

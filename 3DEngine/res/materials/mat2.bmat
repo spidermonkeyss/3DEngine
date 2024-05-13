@@ -1,0 +1,2 @@
+s : res/shaders/basictexture.shader
+t : u_Texture | res/textures/antikythera.png

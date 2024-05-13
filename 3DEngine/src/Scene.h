@@ -18,9 +18,12 @@ private:
 
 	ComponentHandler componentHandler;
 
-	Scene();
-	void LoadMaterials();
-	void CreateGameObjects();
+	Scene() = default;
+
+	Material* CreateMaterial();
+	Mesh* CreateMesh();
+	Shader* CreateShader();
+	Texture* CreateTexture();
 public:
 	void LoadScene(const std::string& filePath);
 

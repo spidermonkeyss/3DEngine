@@ -35,13 +35,13 @@ public:
 
 	~Mesh();
 
-	static Mesh* CreateMesh();
-
 	bool LoadMeshFile(const std::string& filePath);
 
+	static Mesh* CreateMesh();
 private:
 	friend class Engine;
 	friend class Renderer;
 	friend class FileLoader;
 	friend class Model;
+	friend class Scene;
 };

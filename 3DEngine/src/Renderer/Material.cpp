@@ -1,5 +1,6 @@
 #include "Material.h"
 #include "Scene.h"
+#include "FileLoader.h"
 
 unsigned int Material::nextId = 0;
 
@@ -55,6 +56,7 @@ void Material::ApplyMaterialToShader()
 }
 
 Material::Material()
+	:isLoaded(false)
 {
 	id = nextId;
 	nextId++;
@@ -62,8 +64,7 @@ Material::Material()
 
 Material* Material::CreateMaterial()
 {
-	Scene::currentScene->materials.PushBack(new Material());
-	return Scene::currentScene->materials.Back();
+	return Scene::currentScene->CreateMaterial();
 }
 
 void Material::SetShader(Shader* _shader)
@@ -213,4 +214,41 @@ void Material::SetFloat4(std::string uniformName, float v1, float v2, float v3, 
 	}
 	else
 		std::cout << "WARNING: no material properity called: " + uniformName << std::endl;
+}
+
+bool Material::LoadMaterialFile(const std::string& _filePath)
+{
+	std::string extensionTypeStr = FileLoader::GetFileExtension(_filePath);
+
+	if (extensionTypeStr == "bmat")
+	{
+		MaterialFileProperties mfp;
+		bool loaded = FileLoader::Load_bmat_file(_filePath, &mfp);
+		if (loaded)
+		{
+			isLoaded = true;
+			filePath = _filePath;
+			SetShader(mfp.shaderFilePath);
+	
+			for (int i = 0; i < mfp.textures.size(); i++)
+				SetTexture(mfp.textures[i].propertyName, mfp.textures[i].filePath);
+			for (int i = 0; i < mfp.ints.size(); i++)
+				SetInt(mfp.ints[i].propertyName, mfp.ints[i].value);
+			for (int i = 0; i < mfp.floats.size(); i++)
+				SetFloat(mfp.floats[i].propertyName, mfp.floats[i].value);
+			for (int i = 0; i < mfp.float2s.size(); i++)
+				SetFloat2(mfp.float2s[i].propertyName, mfp.float2s[i].value[0], mfp.float2s[i].value[1]);
+			for (int i = 0; i < mfp.float3s.size(); i++)
+				SetFloat3(mfp.float3s[i].propertyName, mfp.float3s[i].value[0], mfp.float3s[i].value[1], mfp.float3s[i].value[2]);
+			for (int i = 0; i < mfp.float4s.size(); i++)
+				SetFloat4(mfp.float4s[i].propertyName, mfp.float4s[i].value[0], mfp.float4s[i].value[1], mfp.float4s[i].value[2], mfp.float4s[i].value[3]);
+			
+			return true;
+		}
+	}
+	else
+	{
+		std::cout << "File extension not supported\n";
+	}
+	return false;
 }

@@ -15,6 +15,7 @@ public:
 	void SetMesh(Mesh* mesh);
 	void SetMesh(std::string filePath);
 	void SetMaterial(Material* material);
+	void SetMaterial(std::string filePath);
 	
 private:
 	friend class Engine;

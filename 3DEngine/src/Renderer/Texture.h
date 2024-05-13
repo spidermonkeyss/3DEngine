@@ -1,13 +1,12 @@
 #pragma once
-#include "FileLoader.h"
 #include "GLCall.h"
+
 #include <string>
 
 class Texture
 {
 private:
 	std::string filePath;
-	bool isLoaded;
 	unsigned int gl_TextureId;
 	unsigned char* localBuffer;
 	int width, height, BPP;
@@ -19,8 +18,13 @@ private:
 
 	Texture();
 public:
-	static Texture* CreateTexture();
+	bool isLoaded;
+	
+	~Texture();
+	
 	bool LoadTextureFile(const std::string& filePath);
+
+	static Texture* CreateTexture();
 
 private:
 	friend class Engine;
@@ -28,4 +32,5 @@ private:
 	friend class Model;
 	friend class Shader;
 	friend class Material;
+	friend class Scene;
 };

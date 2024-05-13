@@ -1,0 +1,2 @@
+s : res/shaders/rgb.shader
+f : u_Opacity | 1.0

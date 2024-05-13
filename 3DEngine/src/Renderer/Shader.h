@@ -1,9 +1,6 @@
 #pragma once
-#include "FileLoader.h"
 #include "Texture.h"
-#include "GLCall.h"
 
-#include <string>
 #include <unordered_map>
 
 class Shader
@@ -16,7 +13,6 @@ private:
 		GLenum type;
 	};
 
-	bool isLoaded;
 	unsigned int gl_ShaderId;
 	std::string filePath;
 	
@@ -42,11 +38,13 @@ private:
 
 	Shader();
 public:
+	bool isLoaded;
+
 	~Shader();
 	
-	static Shader* CreateShader();
-
 	bool LoadShaderFile(const std::string& filePath);
+	
+	static Shader* CreateShader();
 private:
 	friend class Engine;
 	friend class Scene;

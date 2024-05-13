@@ -1,5 +1,6 @@
 #include "Shader.h"
 #include "GLCall.h"
+#include "FileLoader.h"
 #include "Scene.h"
 
 Shader::Shader()
@@ -74,7 +75,7 @@ bool Shader::LoadShaderFile(const std::string& _filePath)
 
     if (extensionTypeStr == "shader")
     {
-        std::vector<std::string> shaderStrings = FileLoader::LoadShaderFile(_filePath);
+        std::vector<std::string> shaderStrings = FileLoader::Load_shader_file(_filePath);
 
         if (shaderStrings.size() != 0)
         {
@@ -148,8 +149,7 @@ Shader::~Shader()
 
 Shader* Shader::CreateShader()
 {
-    Scene::currentScene->shaders.PushBack(new Shader());
-    return Scene::currentScene->shaders.Back();
+    return Scene::currentScene->CreateShader();
 }
 
 void Shader::Bind()

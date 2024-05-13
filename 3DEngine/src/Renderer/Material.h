@@ -1,14 +1,33 @@
 #pragma once
 #include "Renderer/Shader.h"
-#include "Renderer/Texture.h"
 
-#include <string>
+#include <vector>
 
 class Material
 {
 protected:
 	void CreateProperties();
 private:
+
+	struct MaterialFileProperties
+	{
+		struct TexturePair { std::string propertyName; std::string filePath; };
+		struct IntPair { std::string propertyName; int value; };
+		struct FloatPair { std::string propertyName; float value; };
+		struct Float2Pair { std::string propertyName; float value[2]; };
+		struct Float3Pair { std::string propertyName; float value[3]; };
+		struct Float4Pair { std::string propertyName; float value[4]; };
+
+		std::string shaderFilePath = "";
+
+		std::vector<TexturePair> textures;
+		std::vector<IntPair> ints;
+		std::vector<FloatPair> floats;
+		std::vector<Float2Pair> float2s;
+		std::vector<Float3Pair> float3s;
+		std::vector<Float4Pair> float4s;
+	};
+
 	unsigned int id;
 	static unsigned int nextId;
 
@@ -26,7 +45,7 @@ private:
 
 	Material();
 public:
-	static Material* CreateMaterial();
+	bool isLoaded;
 
 	void SetShader(Shader* shader);
 	void SetShader(std::string filePath);
@@ -39,8 +58,14 @@ public:
 	void SetFloat3(std::string uniformName, float v1, float v2, float v3);
 	void SetFloat4(std::string uniformName, float v1, float v2, float v3, float v4);
 
+	bool LoadMaterialFile(const std::string& _filePath);
+	
+	static Material* CreateMaterial();
+
 private:
 	friend class Engine;
 	friend class Renderer;
 	friend class Scene;
+	friend class FileLoader;
+	friend class Model;
 };

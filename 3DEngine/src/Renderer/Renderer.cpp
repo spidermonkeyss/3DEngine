@@ -43,9 +43,11 @@ void Renderer::DrawModel(unsigned int objectId)
 
     if (!model->isEnabled)
         return;
-    if (model->mesh == nullptr || model->material->shader == nullptr)
+    if (model->mesh == nullptr || model->material == nullptr)
         return;
-    if (!model->mesh->isLoaded || !model->material->shader->isLoaded)
+    if (model->material->shader == nullptr)
+        return;
+    if (!model->mesh->isLoaded || !model->material->isLoaded || !model->material->shader->isLoaded)
         return;
 
     model->mesh->Bind();

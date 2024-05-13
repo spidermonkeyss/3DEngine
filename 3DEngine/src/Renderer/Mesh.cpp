@@ -25,8 +25,7 @@ Mesh::~Mesh()
 
 Mesh* Mesh::CreateMesh()
 {
-    Scene::currentScene->meshes.PushBack(new Mesh());
-    return Scene::currentScene->meshes.Back();
+    return Scene::currentScene->CreateMesh();
 }
 
 void Mesh::Bind()
@@ -78,7 +77,7 @@ bool Mesh::LoadMeshFile(const std::string& _filePath)
         float** vertexData = new float*[1];
         vertexAttributeLayouts.clear();
         vertexData[0] = 0;
-        isLoaded = FileLoader::LoadOBJFile(_filePath, vertexData, &vertexAttributeLayouts, vertexCount);
+        isLoaded = FileLoader::Load_obj_file(_filePath, vertexData, &vertexAttributeLayouts, vertexCount);
         
         if (isLoaded)
         {
