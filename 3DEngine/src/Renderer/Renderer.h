@@ -1,5 +1,5 @@
 #pragma once
-#include "GLCall.h"
+#include "Window/Window.h"
 #include "Camera.h"
 
 #include <glm/glm.hpp>
@@ -8,26 +8,17 @@
 class Renderer
 {
 private:
+	static Renderer* currentRenderer;
+	Window* window;
 	glm::mat4 viewMatrix;
 	glm::mat4 projectionMatrix;
-
-	void DrawModel(unsigned int objectId);
-
-	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
-	static char keyPressed;
-
-	GLFWwindow* window;
 	Camera* camera;
-	bool shouldWindowClose = false;
 	
 	Renderer();
 
-	int Init();
+	void DrawModel(unsigned int objectId);
 	void SetCamera(Camera* camera);
-	void Clear();
 	void Render();
-	void SwapBuffer();
 public:
 
 private:

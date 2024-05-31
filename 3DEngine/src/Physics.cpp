@@ -27,7 +27,7 @@ void Physics::FinalizePosition()
 		Rigidbody* rigidbody = &i->second;
 		if (rigidbody->isEnabled)
 		{
-			Transform* transform = &rigidbody->GameObject()->transform;
+			Transform* transform = &rigidbody->gameobject->transform;
 
 			transform->position.x += rigidbody->velocity.x * EngineTime::deltaTime;
 			transform->position.y += rigidbody->velocity.y * EngineTime::deltaTime;
@@ -167,8 +167,8 @@ void Physics::CollisionCheck()
 								}
 								if (noCollision)
 								{
-									Transform* t_one = &colliderOne->GameObject()->transform;
-									Transform* t_two = &colliderTwo->GameObject()->transform;
+									Transform* t_one = &colliderOne->gameobject->transform;
+									Transform* t_two = &colliderTwo->gameobject->transform;
 
 									DoAABBCollisionCheck(colliderOne, colliderTwo, t_one, t_two);
 								}
@@ -186,15 +186,15 @@ void Physics::ResolveCollisions()
 	for (int colliderI = 0; colliderI < collidiersToResolve.size(); colliderI++)
 	{
 		BoxCollider* bc = collidiersToResolve[colliderI];
-		Rigidbody* rb = bc->GameObject()->GetComponent<Rigidbody>();
+		Rigidbody* rb = bc->gameobject->GetComponent<Rigidbody>();
 
 		if (rb != nullptr)
 		{
 			for (int i = 0; i < bc->collisions.size(); i++)
 			{
-				Rigidbody* otherRb = bc->collisions[i].otherCollider->GameObject()->GetComponent<Rigidbody>();
+				Rigidbody* otherRb = bc->collisions[i].otherCollider->gameobject->GetComponent<Rigidbody>();
 
-				Transform* t = &rb->GameObject()->transform;
+				Transform* t = &rb->gameobject->transform;
 
 				float x = bc->collisions[i].collisionForceDirection.x;
 				float y = bc->collisions[i].collisionForceDirection.y;

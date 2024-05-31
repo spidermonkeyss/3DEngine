@@ -27,6 +27,11 @@ Texture* Scene::CreateTexture()
     return textures.Back();
 }
 
+void Scene::UpdateScripts()
+{
+    scriptHandler.CallScriptUpdates();
+}
+
 void Scene::LoadScene(const std::string& filePath)
 {
 	currentScene = this;
@@ -42,6 +47,7 @@ void Scene::LoadScene(const std::string& filePath)
     model = go->AddComponent<Model>();
     model->SetMesh("res/meshes/cube.obj");
     model->SetMaterial("res/materials/mat1.bmat");
+    MovementController* mc = go->AddScript<MovementController>();
 
     go = GameObject::CreateGameObject();
     go->transform.SetPosition(3.0f, 0.0f, 0.0f);

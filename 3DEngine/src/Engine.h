@@ -1,8 +1,6 @@
 #pragma once
-#include "Renderer/Shader.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Material.h"
-#include "Renderer/Texture.h"
 
 #include <vector>
 

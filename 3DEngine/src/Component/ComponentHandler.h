@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "Rigidbody.h"
 #include "BoxCollider.h"
+#include "Script.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -14,28 +15,32 @@ private:
 	std::unordered_map<unsigned int, Rigidbody> rigidbodyComponents;
 	std::unordered_map<unsigned int, BoxCollider> boxColliderComponents;
 
-	template<typename T> T* AddComponent(unsigned int objectId)
+	template<typename T> T* AddComponent(unsigned int objectId, GameObject* _gameobject)
 	{
 		std::cout << typeid(T).name() <<  " is not a component" << std::endl;
 	}
-	template<> Model* AddComponent<Model>(unsigned int objectId)
+	template<> Model* AddComponent<Model>(unsigned int objectId, GameObject* _gameobject)
 	{
 		Model* comp = &modelComponents[objectId];
 		comp->componentGameObjectId = objectId;
+		comp->gameobject = _gameobject;
 		return comp;
 	}
-	template<> Rigidbody* AddComponent<Rigidbody>(unsigned int objectId)
+	template<> Rigidbody* AddComponent<Rigidbody>(unsigned int objectId, GameObject* _gameobject)
 	{
 		Rigidbody* comp = &rigidbodyComponents[objectId];
 		comp->componentGameObjectId = objectId;
+		comp->gameobject = _gameobject;
 		return comp;
 	}
-	template<> BoxCollider* AddComponent<BoxCollider>(unsigned int objectId)
+	template<> BoxCollider* AddComponent<BoxCollider>(unsigned int objectId, GameObject* _gameobject)
 	{
 		BoxCollider* comp = &boxColliderComponents[objectId];
 		comp->componentGameObjectId = objectId;
+		comp->gameobject = _gameobject;
 		return comp;
 	}
+
 
 
 	template<typename T> void RemoveComponent(unsigned int objectId) 

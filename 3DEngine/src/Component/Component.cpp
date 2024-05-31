@@ -1,7 +1,9 @@
 #include "Component.h"
 #include "GameObject.h"
 
-GameObject* Component::GameObject()
+/*
+GameObject* Component::GetGameObject()
 {
 	return GameObject::GetGameObjectByObjectId(this->componentGameObjectId);
 }
+*/

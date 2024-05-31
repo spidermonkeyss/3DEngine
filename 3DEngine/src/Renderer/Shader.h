@@ -10,7 +10,7 @@ private:
 	{
 		int location;
 		std::string name;
-		GLenum type;
+		unsigned int type;// GLEnum;
 	};
 
 	unsigned int gl_ShaderId;

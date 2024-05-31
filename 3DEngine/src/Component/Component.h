@@ -9,8 +9,9 @@ private:
 public:
 	bool isEnabled = true;
 
-	GameObject* GameObject();
+	GameObject* gameobject;
 private:
 	friend class ComponentHandler;
+	friend class ScriptHandler;
 	friend class Physics;
 };

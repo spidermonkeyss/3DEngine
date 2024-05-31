@@ -1,6 +1,7 @@
 #include "Texture.h"
 #include "Scene.h"
 #include "FileLoader.h"
+#include "GLCall.h"
 
 void Texture::Bind(unsigned int slot)
 {

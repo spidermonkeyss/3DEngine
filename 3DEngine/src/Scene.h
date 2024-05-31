@@ -1,6 +1,9 @@
 #pragma once
 #include "GameObject.h"
 #include "LinkedList.h"
+#include "Renderer/Material.h"
+#include "Component/ComponentHandler.h"
+#include "ScriptHandler_Injected.h"
 
 #include <string>
 #include <vector>
@@ -17,6 +20,7 @@ private:
 	LinkedList<Material> materials;
 
 	ComponentHandler componentHandler;
+	ScriptHandler scriptHandler;
 
 	Scene() = default;
 
@@ -24,6 +28,8 @@ private:
 	Mesh* CreateMesh();
 	Shader* CreateShader();
 	Texture* CreateTexture();
+
+	void UpdateScripts();
 public:
 	void LoadScene(const std::string& filePath);
 

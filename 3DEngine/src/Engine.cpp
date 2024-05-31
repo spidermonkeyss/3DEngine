@@ -7,7 +7,9 @@
 #include "Physics.h"
 #include "Scene.h"
 #include "LinkedList.h"
+#include "Input.h"
 
+#include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_impl_glfw_gl3.h>
 
@@ -85,9 +87,15 @@ void Engine::RunImGuiFrame()
     ImGui::ShowMetricsWindow();
 	ImGui::Text("Scene");
 
+    if (ImGui::TreeNodeEx("Camera", 0))
+    {
+        float rot[3] = { Renderer::currentRenderer->camera->transform.rotation.x, Renderer::currentRenderer->camera->transform.rotation.y, Renderer::currentRenderer->camera->transform.rotation.z };
+        ImGui::InputFloat3("Rot", &rot[0]);
+        ImGui::TreePop();
+    }
+
     if (ImGui::TreeNodeEx("Meshes", 0))
     {
-
         for (LinkedList<Mesh>::Iterator i = Scene::currentScene->meshes.Begin(); i != Scene::currentScene->meshes.End(); ++i)
             IMGUI_ShowMesh(i.Data());
         ImGui::TreePop();
@@ -168,8 +176,12 @@ void Engine::RunImGuiFrame()
 
 int Engine::RunEngine()
 {
+    Window window;
+    window.Init();
+
     Renderer renderer;
-    renderer.Init();
+    renderer.currentRenderer = &renderer;
+    renderer.window = &window;
 
     Scene scene;
     scene.LoadScene("");
@@ -179,53 +191,59 @@ int Engine::RunEngine()
 
     renderer.SetCamera(&camera);
 
-    double currentFrameTime = 0;
-    double prevFrameTime = glfwGetTime();
-    EngineTime::deltaTime = 0;
-    
+    EngineTime::Init();
+
     ImGui::CreateContext();
-    ImGui_ImplGlfwGL3_Init(renderer.window, false);
+    ImGui_ImplGlfwGL3_Init(window.glfw_window, false);
     ImGui::StyleColorsDark();
-    
-    while (!renderer.shouldWindowClose)
+
+    while (!window.shouldWindowClose)
     {
-        currentFrameTime = glfwGetTime();
-        EngineTime::deltaTime = currentFrameTime - prevFrameTime;
-        prevFrameTime = currentFrameTime;
+        EngineTime::Update();
 
         Physics::ApplyGravity();
         Physics::CollisionCheck();
 
-        float speed = 0.5f;
+        scene.UpdateScripts();
+
+        float speed = 5.0f;
+        float turnSpeed = 0.1f;
         Vector3 cPos = camera.transform.position;
 
-        if (Renderer::keyPressed == 'w')
-            camera.transform.SetPosition(cPos.x, cPos.y, cPos.z - speed);
-        if (Renderer::keyPressed == 's')
-            camera.transform.SetPosition(cPos.x, cPos.y, cPos.z + speed);
-        if (Renderer::keyPressed == 'a')
-            camera.transform.SetPosition(cPos.x - speed, cPos.y, cPos.z);
-        if (Renderer::keyPressed == 'd')
-            camera.transform.SetPosition(cPos.x + speed, cPos.y, cPos.z);
-        if (Renderer::keyPressed == 'q')
-            camera.transform.SetPosition(cPos.x, cPos.y + speed, cPos.z);
-        if (Renderer::keyPressed == 'e')
-            camera.transform.SetPosition(cPos.x, cPos.y - speed, cPos.z);
-        Renderer::keyPressed = 'n';
+        if (Input::GetKeyHeld(Input::W))
+            camera.transform.SetPosition(camera.transform.position + (camera.transform.Forward() * speed * EngineTime::deltaTime));
+        if (Input::GetKeyHeld(Input::S))
+            camera.transform.SetPosition(camera.transform.position - (camera.transform.Forward() * speed * EngineTime::deltaTime));
+        if (Input::GetKeyHeld(Input::A))
+            camera.transform.SetPosition(camera.transform.position - (camera.transform.Right() * speed * EngineTime::deltaTime));
+        if (Input::GetKeyHeld(Input::D))
+            camera.transform.SetPosition(camera.transform.position + (camera.transform.Right() * speed * EngineTime::deltaTime));
+        if (Input::GetKeyHeld(Input::Q))
+            camera.transform.SetPosition(camera.transform.position + (camera.transform.Up() * speed * EngineTime::deltaTime));
+        if (Input::GetKeyHeld(Input::E))
+            camera.transform.SetPosition(camera.transform.position - (camera.transform.Up() * speed * EngineTime::deltaTime));
+        if (Input::GetKeyHeld(Input::Z))
+            camera.transform.SetRotation(camera.transform.rotation.x, camera.transform.rotation.y + turnSpeed * EngineTime::deltaTime, camera.transform.rotation.z); 
+        if (Input::GetKeyHeld(Input::X))
+            camera.transform.SetRotation(camera.transform.rotation.x, camera.transform.rotation.y - turnSpeed * EngineTime::deltaTime, camera.transform.rotation.z);
+
 
         Physics::ResolveCollisions();
         //Physics::ApplyForces();
         Physics::FinalizePosition();
 
-        renderer.Clear();
+        Input::SetDownKeysToHeld();
+        Input::ClearReleasedKeys();
+        window.Clear();
         renderer.Render();
         RunImGuiFrame();
-        renderer.SwapBuffer();
+        window.SwapBuffer();
+        window.PollEvents();
     }
 
     ImGui_ImplGlfwGL3_Shutdown();
     ImGui::DestroyContext();
 
-    glfwTerminate();
+    window.Terminate();
     return 0;
 }

@@ -1,6 +1,8 @@
 #include "GameObject.h"
-#include "Transform.h"
 #include "Scene.h"
+#include "Component/Model.h"
+#include "Component/Rigidbody.h"
+#include "Component/BoxCollider.h"
 
 #include <iostream>
 

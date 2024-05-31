@@ -14,6 +14,8 @@ project "3DEngine"
 		"%{prj.name}/src/**.c",
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/res/scripts/**.cpp",
+		"%{prj.name}/res/scripts/**.h",
 		"Dependencies/stb_image/**",
 		"Dependencies/imgui/**"
 	}
@@ -48,6 +50,47 @@ project "3DEngine"
 		"_MBCS"
 	}
 
+	filter "system:windows"
+		cppdialect "C++17"
+		staticruntime "Off"
+		systemversion "latest"
+
+	filter "configurations:Debug"
+		defines "DEBUG"
+		system "Windows"
+		architecture "x64"
+		symbols "On"
+
+	filter "configurations:Release"
+		defines "RELEASE"
+		system "Windows"
+		architecture "x64"
+		optimize "On"
+
+project "ScriptHandlerInjecter"
+	location "ScriptHandlerInjecter"
+	language "C++"
+	kind "ConsoleApp"
+
+	targetdir ("ScriptHandlerInjecter")
+	objdir ("ScriptHandlerInjecter/obj")
+	
+	files 
+	{ 
+		"%{prj.name}/**.h",
+		"%{prj.name}/**.cpp"
+	}
+
+	includedirs
+	{
+		"%{prj.name}"
+	}
+
+	defines
+	{
+		"_MBCS"
+	}
+	
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "Off"
