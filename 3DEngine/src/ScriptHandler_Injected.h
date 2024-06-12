@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "../res/scripts/anotherScript.h"
+#include "../res/scripts/CameraController.h"
 #include "../res/scripts/MovementController.h"
 class ScriptHandler
 {
@@ -53,6 +54,28 @@ private:
    {
        return &anotherScript_map[objectId];
    }
+   std::unordered_map<unsigned int, CameraController> CameraController_map;
+   template<> CameraController* AddScript<CameraController>(unsigned int objectId, GameObject* _gameobject)
+   {
+       CameraController* comp = &CameraController_map[objectId];
+       comp->componentGameObjectId = objectId;
+       comp->gameobject = _gameobject;
+       return comp;
+   }
+   template<> void RemoveScript<CameraController>(unsigned int objectId)
+   {
+       CameraController_map.erase(objectId);
+   }
+   template<> CameraController* GetScript<CameraController>(unsigned int objectId)
+   {
+       if (CameraController_map.count(objectId) == 1)
+           return &CameraController_map[objectId];
+       return nullptr;
+   }
+   template<> CameraController* GetScriptUnSafe<CameraController>(unsigned int objectId)
+   {
+       return &CameraController_map[objectId];
+   }
    std::unordered_map<unsigned int, MovementController> MovementController_map;
    template<> MovementController* AddScript<MovementController>(unsigned int objectId, GameObject* _gameobject)
    {
@@ -80,12 +103,41 @@ private:
        std::unordered_map<unsigned int, anotherScript>::iterator anotherScript_ittr;
        for (anotherScript_ittr = anotherScript_map.begin(); anotherScript_ittr != anotherScript_map.end(); ++anotherScript_ittr)
        {
-           anotherScript_ittr->second.Update();
+           if (anotherScript_ittr->second.isEnabled)
+               anotherScript_ittr->second.Update();
+       }
+       std::unordered_map<unsigned int, CameraController>::iterator CameraController_ittr;
+       for (CameraController_ittr = CameraController_map.begin(); CameraController_ittr != CameraController_map.end(); ++CameraController_ittr)
+       {
+           if (CameraController_ittr->second.isEnabled)
+               CameraController_ittr->second.Update();
        }
        std::unordered_map<unsigned int, MovementController>::iterator MovementController_ittr;
        for (MovementController_ittr = MovementController_map.begin(); MovementController_ittr != MovementController_map.end(); ++MovementController_ittr)
        {
-           MovementController_ittr->second.Update();
+           if (MovementController_ittr->second.isEnabled)
+               MovementController_ittr->second.Update();
+       }
+   }
+   void StartScripts()
+   {
+       std::unordered_map<unsigned int, anotherScript>::iterator anotherScript_ittr;
+       for (anotherScript_ittr = anotherScript_map.begin(); anotherScript_ittr != anotherScript_map.end(); ++anotherScript_ittr)
+       {
+           if (anotherScript_ittr->second.isEnabled)
+               anotherScript_ittr->second.OnStart();
+       }
+       std::unordered_map<unsigned int, CameraController>::iterator CameraController_ittr;
+       for (CameraController_ittr = CameraController_map.begin(); CameraController_ittr != CameraController_map.end(); ++CameraController_ittr)
+       {
+           if (CameraController_ittr->second.isEnabled)
+               CameraController_ittr->second.OnStart();
+       }
+       std::unordered_map<unsigned int, MovementController>::iterator MovementController_ittr;
+       for (MovementController_ittr = MovementController_map.begin(); MovementController_ittr != MovementController_map.end(); ++MovementController_ittr)
+       {
+           if (MovementController_ittr->second.isEnabled)
+               MovementController_ittr->second.OnStart();
        }
    }
 };

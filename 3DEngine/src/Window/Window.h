@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 struct GLFWwindow;
 
 class Window
@@ -7,6 +9,9 @@ class Window
 protected:
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void framebuffer_size_callback(GLFWwindow* window, int _width, int _height);
+
+	static void InitGLFWKeyArray();
+	static std::unordered_map<int, int> glfwInputKeyMap;
 
 private:
 	static Window* currentWindow;
@@ -16,6 +21,7 @@ private:
 	bool shouldWindowClose = false;
 
 	Window();
+	~Window();
 
 	int Init();
 	void Clear();

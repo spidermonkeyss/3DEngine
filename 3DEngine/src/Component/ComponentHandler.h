@@ -4,6 +4,7 @@
 #include "Rigidbody.h"
 #include "BoxCollider.h"
 #include "Script.h"
+#include "Camera.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -14,6 +15,7 @@ private:
 	std::unordered_map<unsigned int, Model> modelComponents;
 	std::unordered_map<unsigned int, Rigidbody> rigidbodyComponents;
 	std::unordered_map<unsigned int, BoxCollider> boxColliderComponents;
+	std::unordered_map<unsigned int, Camera> cameraComponents;
 
 	template<typename T> T* AddComponent(unsigned int objectId, GameObject* _gameobject)
 	{
@@ -40,6 +42,13 @@ private:
 		comp->gameobject = _gameobject;
 		return comp;
 	}
+	template<> Camera* AddComponent<Camera>(unsigned int objectId, GameObject* _gameobject)
+	{
+		Camera* comp = &cameraComponents[objectId];
+		comp->componentGameObjectId = objectId;
+		comp->gameobject = _gameobject;
+		return comp;
+	}
 
 
 
@@ -58,6 +67,10 @@ private:
 	template<> void RemoveComponent<BoxCollider>(unsigned int objectId)
 	{
 		boxColliderComponents.erase(objectId);
+	}
+	template<> void RemoveComponent<Camera>(unsigned int objectId)
+	{
+		cameraComponents.erase(objectId);
 	}
 
 
@@ -85,6 +98,12 @@ private:
 			return &boxColliderComponents[objectId];
 		return nullptr;
 	}
+	template<> Camera* GetComponent<Camera>(unsigned int objectId)
+	{
+		if (cameraComponents.count(objectId) == 1)
+			return &cameraComponents[objectId];
+		return nullptr;
+	}
 
 	
 
@@ -104,6 +123,10 @@ private:
 	template<> BoxCollider* GetComponentUnsafe<BoxCollider>(unsigned int objectId)
 	{
 		return &boxColliderComponents[objectId];
+	}
+	template<> Camera* GetComponentUnsafe<Camera>(unsigned int objectId)
+	{
+		return &cameraComponents[objectId];
 	}
 
 private:

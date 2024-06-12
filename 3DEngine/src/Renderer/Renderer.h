@@ -1,6 +1,6 @@
 #pragma once
 #include "Window/Window.h"
-#include "Camera.h"
+#include "Component/Camera.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -17,10 +17,11 @@ private:
 	Renderer();
 
 	void DrawModel(unsigned int objectId);
-	void SetCamera(Camera* camera);
 	void Render();
 public:
+	void SetCamera(Camera* camera);
 
 private:
 	friend class Engine;
+	friend class Scene;
 };

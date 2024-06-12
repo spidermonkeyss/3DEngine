@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "Renderer/Shader.h"
+#include "Renderer/Renderer.h"
 
 Scene* Scene::currentScene;
 
@@ -27,6 +28,11 @@ Texture* Scene::CreateTexture()
     return textures.Back();
 }
 
+void Scene::StartScripts()
+{
+    scriptHandler.StartScripts();
+}
+
 void Scene::UpdateScripts()
 {
     scriptHandler.CallScriptUpdates();
@@ -41,6 +47,7 @@ void Scene::LoadScene(const std::string& filePath)
     Model* model;
     Rigidbody* rb;
 
+
     //line 1
     go = GameObject::CreateGameObject();
     go->transform.SetPosition(0.0f, 0.0f, 0.0f);
@@ -48,6 +55,24 @@ void Scene::LoadScene(const std::string& filePath)
     model->SetMesh("res/meshes/cube.obj");
     model->SetMaterial("res/materials/mat1.bmat");
     MovementController* mc = go->AddScript<MovementController>();
+    rb = go->AddComponent<Rigidbody>();
+    rb->doGravity = false;
+    bc = go->AddComponent<BoxCollider>();
+    bc->lengths.x = 2.0f;
+    bc->lengths.y = 2.0f;
+    bc->lengths.z = 2.0f;
+
+    
+
+    GameObject* camera = GameObject::CreateGameObject();
+    camera->transform.SetPosition(0.0f, 0.0f, 25.0f);
+    Camera* cam = camera->AddComponent<Camera>();
+    CameraController* camC = camera->AddScript<CameraController>();
+    Renderer::currentRenderer->SetCamera(cam);
+    camC->gameObjectToFollow = gameObjects[0].get();
+
+
+
 
     go = GameObject::CreateGameObject();
     go->transform.SetPosition(3.0f, 0.0f, 0.0f);

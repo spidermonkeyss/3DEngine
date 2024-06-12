@@ -63,10 +63,10 @@ void Renderer::Render()
     {
         projectionMatrix = glm::perspective(45.0f, (float)window->width / (float)window->height, 0.1f, 150.0f);
         
-        glm::mat4 positionMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(camera->transform.position.x, camera->transform.position.y, camera->transform.position.z));
-        glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), camera->transform.rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-                  rotationMatrix = glm::rotate(rotationMatrix, camera->transform.rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-                  rotationMatrix = glm::rotate(rotationMatrix, camera->transform.rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::mat4 positionMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(camera->gameobject->transform.position.x, camera->gameobject->transform.position.y, camera->gameobject->transform.position.z));
+        glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), camera->gameobject->transform.rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+                  rotationMatrix = glm::rotate(rotationMatrix, camera->gameobject->transform.rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+                  rotationMatrix = glm::rotate(rotationMatrix, camera->gameobject->transform.rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
         viewMatrix = glm::inverse(positionMatrix * rotationMatrix);
 
         std::unordered_map<unsigned int, Model>::iterator i;

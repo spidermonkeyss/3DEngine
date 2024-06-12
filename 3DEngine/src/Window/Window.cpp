@@ -3,9 +3,15 @@
 #include <GLFW/glfw3.h>
 
 Window* Window::currentWindow = nullptr;
+std::unordered_map<int, int> Window::glfwInputKeyMap;
 
 Window::Window()
     : glfw_window(nullptr)
+{
+    InitGLFWKeyArray();
+}
+
+Window::~Window()
 {
 }
 

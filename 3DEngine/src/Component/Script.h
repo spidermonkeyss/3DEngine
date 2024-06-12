@@ -4,6 +4,7 @@
 class Script : public Component
 {
 private:
+	virtual void OnStart();
 	virtual void Update();
 public:
 	Script();

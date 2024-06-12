@@ -3,100 +3,45 @@
 #include "GLCall.h"
 #include <GLFW/glfw3.h>
 
+void Window::InitGLFWKeyArray()
+{
+    glfwInputKeyMap[GLFW_KEY_Q] = Input::Q;
+    glfwInputKeyMap[GLFW_KEY_W] = Input::W;
+    glfwInputKeyMap[GLFW_KEY_E] = Input::E;
+    glfwInputKeyMap[GLFW_KEY_R] = Input::R;
+    glfwInputKeyMap[GLFW_KEY_T] = Input::T;
+    glfwInputKeyMap[GLFW_KEY_Y] = Input::Y;
+    glfwInputKeyMap[GLFW_KEY_U] = Input::U;
+    glfwInputKeyMap[GLFW_KEY_I] = Input::I;
+    glfwInputKeyMap[GLFW_KEY_O] = Input::O;
+    glfwInputKeyMap[GLFW_KEY_P] = Input::P;
+    glfwInputKeyMap[GLFW_KEY_A] = Input::A;
+    glfwInputKeyMap[GLFW_KEY_S] = Input::S;
+    glfwInputKeyMap[GLFW_KEY_D] = Input::D;
+    glfwInputKeyMap[GLFW_KEY_F] = Input::F;
+    glfwInputKeyMap[GLFW_KEY_G] = Input::G;
+    glfwInputKeyMap[GLFW_KEY_H] = Input::H;
+    glfwInputKeyMap[GLFW_KEY_J] = Input::J;
+    glfwInputKeyMap[GLFW_KEY_K] = Input::K;
+    glfwInputKeyMap[GLFW_KEY_L] = Input::L;
+    glfwInputKeyMap[GLFW_KEY_Z] = Input::Z;
+    glfwInputKeyMap[GLFW_KEY_X] = Input::X;
+    glfwInputKeyMap[GLFW_KEY_C] = Input::C;
+    glfwInputKeyMap[GLFW_KEY_V] = Input::V;
+    glfwInputKeyMap[GLFW_KEY_B] = Input::B;
+    glfwInputKeyMap[GLFW_KEY_N] = Input::N;
+    glfwInputKeyMap[GLFW_KEY_M] = Input::M;
+}
+
 void Window::key_callback(GLFWwindow* _window, int key, int scancode, int action, int mods)
 {
-    switch (key)
-    {
-    case GLFW_KEY_Q:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::Q] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::Q] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::Q] = Input::DOWN;
-        break;
-    case GLFW_KEY_W:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::W] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::W] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::W] = Input::DOWN;
-        break;
-    case GLFW_KEY_E:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::E] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::E] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::E] = Input::DOWN;
-        break;
-    case GLFW_KEY_R:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::R] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::R] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::R] = Input::DOWN;
-        break;
-    case GLFW_KEY_T:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::T] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::T] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::T] = Input::DOWN;
-        break;
-
-
-
-
-
-
-
-    case GLFW_KEY_A:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::A] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::A] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::A] = Input::DOWN;
-        break;
-    case GLFW_KEY_S:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::S] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::S] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::S] = Input::DOWN;
-        break;
-    case GLFW_KEY_D:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::D] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::D] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::D] = Input::DOWN;
-        break;
-    case GLFW_KEY_Z:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::Z] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::Z] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::Z] = Input::DOWN;
-        break;
-    case GLFW_KEY_X:
-        if (action == GLFW_REPEAT)
-            Input::keyStates[Input::X] = Input::HELD;
-        else if (action == GLFW_RELEASE)
-            Input::keyStates[Input::X] = Input::RELEASED;
-        else if (action == GLFW_PRESS)
-            Input::keyStates[Input::X] = Input::DOWN;
-        break;
- 
-    }
-
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(_window, GLFW_TRUE);
+
+    if (action == GLFW_REPEAT)
+        Input::keyStates[glfwInputKeyMap[key]] = Input::HELD;
+    else if (action == GLFW_RELEASE)
+        Input::keyStates[glfwInputKeyMap[key]] = Input::RELEASED;
+    else if (action == GLFW_PRESS)
+        Input::keyStates[glfwInputKeyMap[key]] = Input::DOWN;
 }

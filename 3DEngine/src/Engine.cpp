@@ -2,7 +2,7 @@
 
 #include "Renderer/Renderer.h"
 #include "GameObject.h"
-#include "Camera.h"
+//#include "Camera.h"
 #include "EngineTime.h"
 #include "Physics.h"
 #include "Scene.h"
@@ -89,7 +89,7 @@ void Engine::RunImGuiFrame()
 
     if (ImGui::TreeNodeEx("Camera", 0))
     {
-        float rot[3] = { Renderer::currentRenderer->camera->transform.rotation.x, Renderer::currentRenderer->camera->transform.rotation.y, Renderer::currentRenderer->camera->transform.rotation.z };
+        float rot[3] = { Renderer::currentRenderer->camera->gameobject->transform.rotation.x, Renderer::currentRenderer->camera->gameobject->transform.rotation.y, Renderer::currentRenderer->camera->gameobject->transform.rotation.z };
         ImGui::InputFloat3("Rot", &rot[0]);
         ImGui::TreePop();
     }
@@ -186,11 +186,6 @@ int Engine::RunEngine()
     Scene scene;
     scene.LoadScene("");
 
-    Camera camera;
-    camera.transform.SetPosition(0.0f, 0.0f, 25.0f);
-
-    renderer.SetCamera(&camera);
-
     EngineTime::Init();
 
     ImGui::CreateContext();
@@ -205,28 +200,6 @@ int Engine::RunEngine()
         Physics::CollisionCheck();
 
         scene.UpdateScripts();
-
-        float speed = 5.0f;
-        float turnSpeed = 0.1f;
-        Vector3 cPos = camera.transform.position;
-
-        if (Input::GetKeyHeld(Input::W))
-            camera.transform.SetPosition(camera.transform.position + (camera.transform.Forward() * speed * EngineTime::deltaTime));
-        if (Input::GetKeyHeld(Input::S))
-            camera.transform.SetPosition(camera.transform.position - (camera.transform.Forward() * speed * EngineTime::deltaTime));
-        if (Input::GetKeyHeld(Input::A))
-            camera.transform.SetPosition(camera.transform.position - (camera.transform.Right() * speed * EngineTime::deltaTime));
-        if (Input::GetKeyHeld(Input::D))
-            camera.transform.SetPosition(camera.transform.position + (camera.transform.Right() * speed * EngineTime::deltaTime));
-        if (Input::GetKeyHeld(Input::Q))
-            camera.transform.SetPosition(camera.transform.position + (camera.transform.Up() * speed * EngineTime::deltaTime));
-        if (Input::GetKeyHeld(Input::E))
-            camera.transform.SetPosition(camera.transform.position - (camera.transform.Up() * speed * EngineTime::deltaTime));
-        if (Input::GetKeyHeld(Input::Z))
-            camera.transform.SetRotation(camera.transform.rotation.x, camera.transform.rotation.y + turnSpeed * EngineTime::deltaTime, camera.transform.rotation.z); 
-        if (Input::GetKeyHeld(Input::X))
-            camera.transform.SetRotation(camera.transform.rotation.x, camera.transform.rotation.y - turnSpeed * EngineTime::deltaTime, camera.transform.rotation.z);
-
 
         Physics::ResolveCollisions();
         //Physics::ApplyForces();

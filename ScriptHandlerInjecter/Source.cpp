@@ -129,7 +129,6 @@ int main(void)
 
     scriptHandlerStr += "   void CallScriptUpdates()\n"
                         "   {\n";
-
     for (const auto& entry : std::filesystem::directory_iterator(path))
     {
         std::string filePath = entry.path().generic_string();
@@ -139,12 +138,31 @@ int main(void)
             scriptHandlerStr += "       std::unordered_map<unsigned int, " + fileName + ">::iterator " + fileName + "_ittr;\n"
                                 "       for (" + fileName + "_ittr = " + fileName + "_map.begin(); " + fileName + "_ittr != " + fileName + "_map.end(); ++" + fileName + "_ittr)\n"
                                 "       {\n"
-                                "           " + fileName + "_ittr->second.Update();\n"
+                                "           if (" + fileName + "_ittr->second.isEnabled)\n"
+                                "               " + fileName + "_ittr->second.Update();\n"
                                 "       }\n";
         }
     }
-
     scriptHandlerStr += "   }\n";
+
+    scriptHandlerStr += "   void StartScripts()\n"
+        "   {\n";
+    for (const auto& entry : std::filesystem::directory_iterator(path))
+    {
+        std::string filePath = entry.path().generic_string();
+        if (GetFileExtension(filePath) == "h")
+        {
+            std::string fileName = GetFileName(filePath);
+            scriptHandlerStr += "       std::unordered_map<unsigned int, " + fileName + ">::iterator " + fileName + "_ittr;\n"
+                "       for (" + fileName + "_ittr = " + fileName + "_map.begin(); " + fileName + "_ittr != " + fileName + "_map.end(); ++" + fileName + "_ittr)\n"
+                "       {\n"
+                "           if (" + fileName + "_ittr->second.isEnabled)\n"
+                "               " + fileName + "_ittr->second.OnStart();\n"
+                "       }\n";
+        }
+    }
+    scriptHandlerStr += "   }\n";
+    
     scriptHandlerStr += "};";
 
     std::string fileToWritePath = "../3DEngine/src/ScriptHandler_Injected.h";

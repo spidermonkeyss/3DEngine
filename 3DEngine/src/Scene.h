@@ -29,6 +29,7 @@ private:
 	Shader* CreateShader();
 	Texture* CreateTexture();
 
+	void StartScripts();
 	void UpdateScripts();
 public:
 	void LoadScene(const std::string& filePath);
